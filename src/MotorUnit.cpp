@@ -31,15 +31,17 @@ void MotorUnit::setupMotor() {
 
 int MotorUnit::getPosition() { return stepper->getCurrentPosition(); }
 
-void MotorUnit::moveClockwise(int speed) {
+void MotorUnit::move(int speed) {
+  if (speed>0) {
   stepper->setSpeedInHz(speed);
   stepper->runForward();
-  
-}
-void MotorUnit::moveAntiClockwise(int speed) {
+  } else {
   stepper->setSpeedInHz(speed);
   stepper->runBackward();
+  }
+  
 }
+
 
   void MotorUnit::moveTo(int location) {
     stepper->keepRunning();

@@ -5,8 +5,7 @@ public:
   void setupMotor();
   void motorLoop();
   void moveTo(int location);
-  void moveClockwise(int speed);
-  void moveAntiClockwise(int speed);
+  void move(int speed);
   int getPosition();
   void stop();
 };

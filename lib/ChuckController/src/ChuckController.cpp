@@ -89,16 +89,19 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     if (isUp(state)) {
       speed = interpolate(DEADZONE, MAX_AXIS, minSpeeds[mode], maxSpeeds[mode],
                           state.y);
+                          // dir=1;
                           return;
     }
     if (isDown(state)) {
                           speed =
-                              interpolate(DEADZONE, MAX_AXIS, minSpeeds[mode],
+                              -interpolate(DEADZONE, MAX_AXIS, minSpeeds[mode],
                                           maxSpeeds[mode], -state.y);
+                                          // dir=-1;
                           return;
     }
 
     speed=0;
+    // dir=0;
     return;
   }
 
@@ -106,6 +109,8 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
 }
 
 int ChuckController::getSpeed() { return speed; }
+
+// int ChuckController::getDir() { return dir; }
 
 int ChuckController::getMode() { return mode; }
 

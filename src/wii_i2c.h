@@ -7,24 +7,10 @@
 #define WII_I2C_IDENT_NUNCHUK 0xa4200000
 #define WII_I2C_IDENT_CLASSIC 0xa4200101
 
+#include "NunchukShared.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-struct wii_i2c_nunchuk_state {
-  // accelerometer
-  short int acc_x;
-  short int acc_y;
-  short int acc_z;
-
-  // analog stick:
-  signed char x;
-  signed char y;
-
-  // buttons:
-  char c;
-  char z;
-};
 
 struct wii_i2c_classic_state {
   // analog sticks:

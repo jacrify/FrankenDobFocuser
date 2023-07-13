@@ -5,8 +5,8 @@
 FastAccelStepperEngine engine = FastAccelStepperEngine();
 FastAccelStepper *stepper = NULL;
 
-#define dirPinStepper 16 //BLUE
-#define stepPinStepper 17 //ORANGE
+#define dirPinStepper 16  // BLUE
+#define stepPinStepper 17 // ORANGE
 
 // #define enablePinStepper 16
 #define backwardSwitchPin 22
@@ -22,7 +22,7 @@ void MotorUnit::setupMotor() {
 
     // stepper->setSpeedInHz(5000);
     stepper->setAcceleration(1000000); // 100 steps/s²
- 
+
     stepper->setSpeedInHz(60000);
   } else {
     log("AHHHHHHHHH! Can't init stepper");
@@ -32,23 +32,19 @@ void MotorUnit::setupMotor() {
 int MotorUnit::getPosition() { return stepper->getCurrentPosition(); }
 
 void MotorUnit::move(int speed) {
-  if (speed>0) {
-  stepper->setSpeedInHz(speed);
-  stepper->runForward();
+  if (speed > 0) {
+    stepper->setSpeedInHz(speed);
+    stepper->runForward();
   } else {
-  stepper->setSpeedInHz(speed);
-  stepper->runBackward();
+    stepper->setSpeedInHz(speed);
+    stepper->runBackward();
   }
-  
 }
 
+void MotorUnit::moveTo(int location) {
+  stepper->keepRunning();
+  stepper->moveTo(location);
+  //   stepper->move(100000);
+}
 
-  void MotorUnit::moveTo(int location) {
-    stepper->keepRunning();
-    stepper->moveTo(location);
-    //   stepper->move(100000);
-  }
-
-  void MotorUnit::stop() {
-    stepper->stopMove();
-  }
+void MotorUnit::stop() { stepper->stopMove(); }

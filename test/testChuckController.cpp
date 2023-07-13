@@ -159,24 +159,70 @@ void testSpeedMappingUp() {
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getSpeed(), "Should be stopped");
   
 }
-void setup() {
-  UNITY_BEGIN(); // IMPORTANT LINE!
-  RUN_TEST(testModeChangeTo1);
-  RUN_TEST(testModeChangeTo1Diag);
-  RUN_TEST(testModeChangeTo2);
-  RUN_TEST(testModeChangeTo3);
-  RUN_TEST(testSpeedMappingUp);
-  RUN_TEST(testSpeedMappingDown);
-  RUN_TEST(testSpeedAndModeChange);
 
-  UNITY_END(); // IMPORTANT LINE!
+void testFindLimit() {
+  wii_i2c_nunchuk_state state;
+  ChuckController controller;
+
+  controller.setModeParameters(0, 100, 1100);
+  controller.setModeParameters(4, 1000, 11000); //mode four is find limit mode
+  controller.setMode(0);
+
+  state.z = 1;
+  state.c = 1;
+  state.x = 0;
+  state.y = 100;
+  state.millis=1000;
+
+  
+  controller.processChuckData(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getSpeed(),
+                                "Should be stopped, time limit not hit");
+
+  state.millis = 2000;
+  controller.processChuckData(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getSpeed(),
+                                "Should be stopped, time limit not hit");
+
+  state.millis =  4500;
+  controller.processChuckData(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(11000, controller.getSpeed(),
+                                "Should be running forward at limit speed");
+
+  state.z = 0;
+  state.c = 0;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 4600;
+  controller.processChuckData(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getSpeed(),
+                                "Should be stopped at limit position (as if manually)");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(
+      1, controller.getAndFlipLimitFlag(),
+      "Limit flag should be set to reset motor unit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getAndFlipLimitFlag(),
+                                "Second call for limit flag should be zero");
 }
 
-void loop() {
-  // Do nothing here.
-}
+  void setup() {
+    UNITY_BEGIN(); // IMPORTANT LINE!
+    RUN_TEST(testModeChangeTo1);
+    RUN_TEST(testModeChangeTo1Diag);
+    RUN_TEST(testModeChangeTo2);
+    RUN_TEST(testModeChangeTo3);
+    RUN_TEST(testSpeedMappingUp);
+    RUN_TEST(testSpeedMappingDown);
+    RUN_TEST(testSpeedAndModeChange);
+    RUN_TEST(testFindLimit);
 
-int main() {
-  setup();
-  return 0;
-}
+    UNITY_END(); // IMPORTANT LINE!
+  }
+
+  void loop() {
+    // Do nothing here.
+  }
+
+  int main() {
+    setup();
+    return 0;
+  }

@@ -2,13 +2,12 @@
 #include <Math.h>
 #include <stdexcept>
 
-
 #define DEADZONE 20
 #define MAX_AXIS 100
-#define MODE_COUNT 4
 
+#define FIND_LIMIT_MODE_NUMBER 4
 
-
+#define TWO_BUTTON_TIME_MILLIS 3000
 
 bool isRight(wii_i2c_nunchuk_state state) {
   if (state.x >= DEADZONE)
@@ -75,8 +74,27 @@ int interpolate(int minIn, int maxIn, int minOut, int maxOut, int value) {
   return minOut + ((value - minIn) * (maxOut - minOut)) / (maxIn - minIn);
 }
 
+unsigned long twoButtonsPressedTime = -1;
+
+int isLimitFindingMode=0;
+bool ChuckController::isLimitFindingModeOn() {
+  return  isLimitFindingMode ;
+}
+
 void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
-  // check for mode change
+
+  if ((state.z == 0 or state.c == 0) and twoButtonsPressedTime>0 ) {
+    //user let go of buttons, after holding them down
+    if (state.millis - twoButtonsPressedTime > TWO_BUTTON_TIME_MILLIS) {
+      //held down for long enough. Flag for limit reset
+      limitFlag=1;
+    }
+    twoButtonsPressedTime = -1; //reset time
+    speed=0;
+    int isLimitFindingMode = 0;
+    
+  }
+  // check for mode change mode
   if (state.z == 1 and state.c == 0) {
     int newMode = getNewMode(state);
     if (newMode != -1) {
@@ -89,22 +107,51 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     if (isUp(state)) {
       speed = interpolate(DEADZONE, MAX_AXIS, minSpeeds[mode], maxSpeeds[mode],
                           state.y);
-                          // dir=1;
-                          return;
+      return;
     }
     if (isDown(state)) {
-                          speed =
-                              -interpolate(DEADZONE, MAX_AXIS, minSpeeds[mode],
-                                          maxSpeeds[mode], -state.y);
-                                          // dir=-1;
-                          return;
+      speed = -interpolate(DEADZONE, MAX_AXIS, minSpeeds[mode], maxSpeeds[mode],
+                           -state.y);
+      return;
     }
 
-    speed=0;
+    speed = 0;
     // dir=0;
     return;
   }
 
+  if (state.z == 1 and state.c == 1) {
+    speed = 0;
+    if (twoButtonsPressedTime > 0) {
+      if (state.millis - twoButtonsPressedTime > TWO_BUTTON_TIME_MILLIS) {
+        // Both buttons held for 3 seconds. We're in find limit mode. Let them
+        // move up and down. When they stop, that's the limit.
+        int isLimitFindingMode = 0;
+
+        if (isUp(state)) {
+          speed =
+              interpolate(DEADZONE, MAX_AXIS, minSpeeds[FIND_LIMIT_MODE_NUMBER],
+                          maxSpeeds[FIND_LIMIT_MODE_NUMBER], state.y);
+          return;
+        }
+        if (isDown(state)) {
+          speed = -interpolate(DEADZONE, MAX_AXIS,
+                               minSpeeds[FIND_LIMIT_MODE_NUMBER],
+                               maxSpeeds[FIND_LIMIT_MODE_NUMBER], -state.y);
+          return;
+        }
+
+        speed = 0;
+        // dir=0;
+        return;
+      } else
+        return; // still waiting, nothing to see here
+    } else {
+      // use just pressed both. Store time and wait.
+      twoButtonsPressedTime = state.millis;
+      return;
+    }
+  }
   return;
 }
 
@@ -115,6 +162,14 @@ int ChuckController::getSpeed() { return speed; }
 int ChuckController::getMode() { return mode; }
 
 void ChuckController::setMode(int m) { mode = m; }
+
+int ChuckController::getAndFlipLimitFlag() {
+  if (limitFlag == 1) {
+    limitFlag = 0;
+    return 1;
+  } else
+    return 0;
+}
 
 void ChuckController::setModeParameters(int mode, int minSpeedInHz,
                                         int maxSpeedInHz) {

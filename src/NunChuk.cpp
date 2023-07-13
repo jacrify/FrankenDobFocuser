@@ -25,7 +25,9 @@ void NunChuk::nunChukLoop() {
   } else {
     wii_i2c_nunchuk_state state;
     wii_i2c_decode_nunchuk(data, &state);
+    state.millis = millis(); // Pass current time in for long press logic
     controller.processChuckData(state);
   }
-  
 }
+int NunChuk::limitFinding() { return controller.isLimitFindingModeOn(); }
+int NunChuk::resetLimitRequested() { return controller.getAndFlipLimitFlag(); }

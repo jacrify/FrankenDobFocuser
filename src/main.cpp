@@ -20,11 +20,22 @@ void setup() {
 
 void loop() {
   nunChuk.nunChukLoop();
+  if (nunChuk.resetLimitRequested()) {
+    motorUnit.resetLimit(); // set position to zero.
+  }
   int speed = nunChuk.getSpeed();
-  log("Speed is %d",speed);
+  log("Speed is %d", speed);
   if (speed == 0)
     motorUnit.stop();
-  else
-    motorUnit.move(speed);
+  else {
+
+    if (nunChuk.limitFinding()) {
+      motorUnit.move(speed);
+      log("In limit finding mode");
+    } else {
+      motorUnit.moveSafely(speed);
+      log("In normal move mode");
+    }
+  }
   delay(100);
 }

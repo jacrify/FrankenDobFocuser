@@ -14,6 +14,9 @@ struct wii_i2c_nunchuk_state {
   // buttons:
   char c;
   char z;
+
+  // timestamp
+  unsigned long millis;
 };
 
 #endif

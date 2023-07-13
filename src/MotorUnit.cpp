@@ -41,10 +41,27 @@ void MotorUnit::move(int speed) {
   }
 }
 
+void MotorUnit::moveSafely(int speed) {
+  if (speed > 0) {
+    stepper->setSpeedInHz(speed);
+    stepper->moveTo(ENDPOSITION);
+  } else {
+    stepper->setSpeedInHz(speed);
+    stepper->moveTo(0);
+  }
+}
+
 void MotorUnit::moveTo(int location) {
   stepper->keepRunning();
   stepper->moveTo(location);
   //   stepper->move(100000);
 }
 
-void MotorUnit::stop() { stepper->stopMove(); }
+void MotorUnit::resetLimit() {
+  stepper->setCurrentPosition(0);
+}
+
+    void
+    MotorUnit::stop() {
+  stepper->stopMove();
+}

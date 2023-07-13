@@ -13,5 +13,7 @@ public:
   void setUpNunChuk();
   void nunChukLoop();
   int getSpeed();
+  int resetLimitRequested();
+  int limitFinding();
 };
 #endif

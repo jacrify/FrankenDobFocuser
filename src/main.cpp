@@ -9,12 +9,16 @@ int wimax = 101;
 MotorUnit motorUnit;
 NunChuk nunChuk;
 
+
 void setup() {
   Serial.begin(115200);
   Serial.println("Booting");
+  
 
   motorUnit.setupMotor();
   nunChuk.setUpNunChuk();
+
+  
   // motorUnit.move(5000);
 }
 
@@ -24,12 +28,12 @@ void loop() {
     motorUnit.resetLimit(); // set position to zero.
   }
   int speed = nunChuk.getSpeed();
-  log("Speed is %d", speed);
+  // log("Speed is %d", speed);
   if (speed == 0)
     motorUnit.stop();
   else {
 
-    if (nunChuk.limitFinding()) {
+    if (nunChuk.isLimitFinding()) {
       motorUnit.move(speed);
       log("In limit finding mode");
     } else {

@@ -12,6 +12,7 @@ void NunChuk::setUpNunChuk() {
   }
   wii_i2c_request_state();
 
+  controller.setModeParameters(4, 16000, 64000);
   controller.setModeParameters(3, 200, 1000);
   controller.setModeParameters(2, 1000, 4000);
   controller.setModeParameters(1, 4000, 16000);
@@ -29,5 +30,5 @@ void NunChuk::nunChukLoop() {
     controller.processChuckData(state);
   }
 }
-int NunChuk::limitFinding() { return controller.isLimitFindingModeOn(); }
+int NunChuk::isLimitFinding() { return controller.isLimitFindingModeOn(); }
 int NunChuk::resetLimitRequested() { return controller.getAndFlipLimitFlag(); }

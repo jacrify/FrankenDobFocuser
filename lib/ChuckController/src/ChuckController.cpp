@@ -74,25 +74,24 @@ int interpolate(int minIn, int maxIn, int minOut, int maxOut, int value) {
   return minOut + ((value - minIn) * (maxOut - minOut)) / (maxIn - minIn);
 }
 
-unsigned long twoButtonsPressedTime = -1;
+unsigned long twoButtonsPressedTime = 0;
+bool twoButtonPressedFlag = false;
 
-int isLimitFindingMode=0;
-bool ChuckController::isLimitFindingModeOn() {
-  return  isLimitFindingMode ;
-}
+int isLimitFindingMode = 0;
+bool ChuckController::isLimitFindingModeOn() { return isLimitFindingMode; }
 
 void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
 
-  if ((state.z == 0 or state.c == 0) and twoButtonsPressedTime>0 ) {
-    //user let go of buttons, after holding them down
+  if ((state.z == 0 or state.c == 0) and twoButtonPressedFlag) {
+    // user let go of buttons, after holding them down
     if (state.millis - twoButtonsPressedTime > TWO_BUTTON_TIME_MILLIS) {
-      //held down for long enough. Flag for limit reset
-      limitFlag=1;
+      // held down for long enough. Flag for limit reset
+      limitFlag = 1;
     }
-    twoButtonsPressedTime = -1; //reset time
-    speed=0;
-    int isLimitFindingMode = 0;
-    
+    twoButtonsPressedTime = 0; // reset time
+    twoButtonPressedFlag = false;
+    speed = 0;
+     isLimitFindingMode = 0;
   }
   // check for mode change mode
   if (state.z == 1 and state.c == 0) {
@@ -122,11 +121,11 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
 
   if (state.z == 1 and state.c == 1) {
     speed = 0;
-    if (twoButtonsPressedTime > 0) {
+    if (twoButtonPressedFlag) {
       if (state.millis - twoButtonsPressedTime > TWO_BUTTON_TIME_MILLIS) {
         // Both buttons held for 3 seconds. We're in find limit mode. Let them
         // move up and down. When they stop, that's the limit.
-        int isLimitFindingMode = 0;
+         isLimitFindingMode = 1;
 
         if (isUp(state)) {
           speed =
@@ -149,6 +148,7 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     } else {
       // use just pressed both. Store time and wait.
       twoButtonsPressedTime = state.millis;
+      twoButtonPressedFlag = true;
       return;
     }
   }

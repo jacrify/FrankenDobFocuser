@@ -2,12 +2,17 @@
 #include "FastAccelStepper.h"
 #include "Logging.h"
 
+#include <Preferences.h>
+
 FastAccelStepperEngine engine = FastAccelStepperEngine();
 FastAccelStepper *stepper = NULL;
+
+Preferences preferences;
 
 #define dirPinStepper 16  // BLUE
 #define stepPinStepper 17 // ORANGE
 
+#define PREF_SAVED_POS_KEY "SavedPosition"
 // #define enablePinStepper 16
 #define backwardSwitchPin 22
 
@@ -24,6 +29,11 @@ void MotorUnit::setupMotor() {
     stepper->setAcceleration(1000000); // 100 steps/s²
 
     stepper->setSpeedInHz(60000);
+    preferences.begin("AutoFocuser", false);
+    uint32_t savedPosition = preferences.getUInt(PREF_SAVED_POS_KEY, 0);
+    log("Loaded saved position %d", savedPosition);
+    stepper->setCurrentPosition(savedPosition);
+
   } else {
     log("AHHHHHHHHH! Can't init stepper");
   }
@@ -32,36 +42,37 @@ void MotorUnit::setupMotor() {
 int MotorUnit::getPosition() { return stepper->getCurrentPosition(); }
 
 void MotorUnit::move(int speed) {
+
   if (speed > 0) {
     stepper->setSpeedInHz(speed);
-    stepper->runForward();
-  } else {
-    stepper->setSpeedInHz(speed);
     stepper->runBackward();
+  } else {
+    stepper->setSpeedInHz(abs(speed));
+    stepper->runForward();
   }
 }
 
 void MotorUnit::moveSafely(int speed) {
   if (speed > 0) {
     stepper->setSpeedInHz(speed);
-    stepper->moveTo(ENDPOSITION);
-  } else {
-    stepper->setSpeedInHz(speed);
     stepper->moveTo(0);
+  } else {
+    stepper->setSpeedInHz(abs(speed));
+    stepper->moveTo(ENDPOSITION);
   }
-}
-
-void MotorUnit::moveTo(int location) {
-  stepper->keepRunning();
-  stepper->moveTo(location);
-  //   stepper->move(100000);
 }
 
 void MotorUnit::resetLimit() {
   stepper->setCurrentPosition(0);
+  preferences.putUInt(PREF_SAVED_POS_KEY, 0);
+  log("At limit, saving zero position");
 }
 
-    void
-    MotorUnit::stop() {
-  stepper->stopMove();
+void MotorUnit::stop() {
+  if (stepper->isRunning()) {
+    stepper->stopMove();
+    uint32_t pos = stepper->getCurrentPosition();
+    preferences.putUInt(PREF_SAVED_POS_KEY, pos);
+    log("Stopped, saving position %d", pos);
+  }
 }

@@ -178,16 +178,22 @@ void testFindLimit() {
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getSpeed(),
                                 "Should be stopped, time limit not hit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.isLimitFindingModeOn(),
+                               "Should not be in limit finding mode");
 
   state.millis = 2000;
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getSpeed(),
                                 "Should be stopped, time limit not hit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.isLimitFindingModeOn(),
+                                "Should not be in limit finding mode");
 
   state.millis =  4500;
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(11000, controller.getSpeed(),
                                 "Should be running forward at limit speed");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.isLimitFindingModeOn(),
+                                "Should be in limit finding mode");
 
   state.z = 0;
   state.c = 0;
@@ -197,6 +203,9 @@ void testFindLimit() {
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getSpeed(),
                                 "Should be stopped at limit position (as if manually)");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.isLimitFindingModeOn(),
+                                "Should not be in limit finding mode");
+                                
   TEST_ASSERT_EQUAL_INT_MESSAGE(
       1, controller.getAndFlipLimitFlag(),
       "Limit flag should be set to reset motor unit");

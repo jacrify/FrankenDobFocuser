@@ -87,6 +87,7 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     if (state.millis - twoButtonsPressedTime > TWO_BUTTON_TIME_MILLIS) {
       // held down for long enough. Flag for limit reset
       limitFlag = 1;
+      setMode(mode); //to set leds
     }
     twoButtonsPressedTime = 0; // reset time
     twoButtonPressedFlag = false;
@@ -137,6 +138,8 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
         // Both buttons held for 3 seconds. We're in find limit mode. Let them
         // move up and down. When they stop, that's the limit.
         isLimitFindingMode = 1;
+        ledFlashCycle1=1+2+4+8;
+        flashFast = 1;
 
         if (isUp(state)) {
           speed =

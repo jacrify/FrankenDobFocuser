@@ -37,10 +37,10 @@ void loop() {
 
     if (nunChuk.isLimitFinding()) {
       motorUnit.move(speed);
-      log("In limit finding mode");
+      // log("In limit finding mode");
     } else {
       motorUnit.moveSafely(speed);
-      log("In normal move mode");
+      // log("In normal move mode");
     }
   }
   delay(20);

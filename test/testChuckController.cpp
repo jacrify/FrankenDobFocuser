@@ -254,6 +254,13 @@ void testFindLimit() {
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.isLimitFindingModeOn(),
                                 "Should be in limit finding mode");
 
+  TEST_ASSERT_EQUAL_INT_MESSAGE(15, controller.getLedsFlashCycle1(),
+                                "All leds should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
+                                "Leds should be flashing");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getFlashFast(),
+                                "Flashing should be fast");
+
   state.z = 0;
   state.c = 0;
   state.x = 0;
@@ -264,7 +271,13 @@ void testFindLimit() {
                                 "Should be stopped at limit position (as if manually)");
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.isLimitFindingModeOn(),
                                 "Should not be in limit finding mode");
-                                
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getLedsFlashCycle1(),
+                                "Led1 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getLedsFlashCycle2(),
+                                "Led should not be flashing");
+
+
   TEST_ASSERT_EQUAL_INT_MESSAGE(
       1, controller.getAndFlipLimitFlag(),
       "Limit flag should be set to reset motor unit");

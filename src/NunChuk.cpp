@@ -1,6 +1,7 @@
 #include "NunChuk.h"
 #include "wii_i2c.h"
 #include <Arduino.h>
+#include "LED.h"
 
 ChuckController controller; // all logic delated here
 
@@ -17,6 +18,9 @@ void NunChuk::setUpNunChuk() {
   controller.setModeParameters(2, 1000, 4000);
   controller.setModeParameters(1, 4000, 16000);
   controller.setModeParameters(0, 16000, 64000);
+  controller.setMode(0);
+  ledSetup();
+
 }
 void NunChuk::nunChukLoop() {
   const unsigned char *data = wii_i2c_read_state();
@@ -28,6 +32,7 @@ void NunChuk::nunChukLoop() {
     wii_i2c_decode_nunchuk(data, &state);
     state.millis = millis(); // Pass current time in for long press logic
     controller.processChuckData(state);
+    ledLoop(controller.getLedsFlashCycle1(), controller.getLedsFlashCycle2(), controller.getFlashFast());
   }
 }
 int NunChuk::isLimitFinding() { return controller.isLimitFindingModeOn(); }

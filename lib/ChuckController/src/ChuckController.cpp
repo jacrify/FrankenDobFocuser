@@ -91,13 +91,17 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     twoButtonsPressedTime = 0; // reset time
     twoButtonPressedFlag = false;
     speed = 0;
-     isLimitFindingMode = 0;
+    isLimitFindingMode = 0;
   }
   // check for mode change mode
   if (state.z == 1 and state.c == 0) {
     int newMode = getNewMode(state);
     if (newMode != -1) {
       mode = newMode;
+
+      ledFlashCycle1 = pow(2, mode);
+      ledFlashCycle2 = 0;
+      flashFast = 0;
     }
     return;
   }
@@ -106,13 +110,20 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     if (isUp(state)) {
       speed = interpolate(DEADZONE, MAX_AXIS, minSpeeds[mode], maxSpeeds[mode],
                           state.y);
+
+      ledFlashCycle2 = 0; // flash when moving
+      flashFast = 1;
+
       return;
     }
     if (isDown(state)) {
       speed = -interpolate(DEADZONE, MAX_AXIS, minSpeeds[mode], maxSpeeds[mode],
                            -state.y);
+      ledFlashCycle2 = 0; // flash when moving
+      flashFast = 1;
       return;
     }
+    ledFlashCycle2 = ledFlashCycle1; // don't flash when stopped
 
     speed = 0;
     // dir=0;
@@ -125,7 +136,7 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
       if (state.millis - twoButtonsPressedTime > TWO_BUTTON_TIME_MILLIS) {
         // Both buttons held for 3 seconds. We're in find limit mode. Let them
         // move up and down. When they stop, that's the limit.
-         isLimitFindingMode = 1;
+        isLimitFindingMode = 1;
 
         if (isUp(state)) {
           speed =
@@ -161,7 +172,10 @@ int ChuckController::getSpeed() { return speed; }
 
 int ChuckController::getMode() { return mode; }
 
-void ChuckController::setMode(int m) { mode = m; }
+void ChuckController::setMode(int m) {
+  mode = m;
+  ledFlashCycle1 = pow(2, mode);
+}
 
 int ChuckController::getAndFlipLimitFlag() {
   if (limitFlag == 1) {
@@ -179,3 +193,7 @@ void ChuckController::setModeParameters(int mode, int minSpeedInHz,
   minSpeeds[mode] = minSpeedInHz;
   maxSpeeds[mode] = maxSpeedInHz;
 }
+
+int ChuckController::getLedsFlashCycle1() { return ledFlashCycle1; }
+int ChuckController::getLedsFlashCycle2() { return ledFlashCycle2; }
+bool ChuckController::getFlashFast() { return flashFast; }

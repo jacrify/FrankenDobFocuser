@@ -12,7 +12,13 @@ void testModeChangeTo1(void) {
   state.y = 0;
 
   controller.processChuckData(state);
-  TEST_ASSERT_EQUAL_FLOAT(1, controller.getMode());
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getMode(), "Mode should be 1");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(2, controller.getLedsFlashCycle1(),
+                                "Led 1 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
+                                "Led  should be flashing to indicate mode change");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getFlashFast(),
+                                "Flashing should be slow");
 }
 
 void testModeChangeTo1Diag(void) {
@@ -25,7 +31,13 @@ void testModeChangeTo1Diag(void) {
   state.y = 100;
 
   controller.processChuckData(state);
-  TEST_ASSERT_EQUAL_FLOAT(0, controller.getMode());
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMode(),"Mode should be 0");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getLedsFlashCycle1(),
+                               "Led 0 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
+                                "Led should be flashing to indicate mode change");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getFlashFast(),
+                                "Flashing should be slow");
 
   state.z = 1;
   state.c = 0;
@@ -33,7 +45,14 @@ void testModeChangeTo1Diag(void) {
   state.y = -100;
 
   controller.processChuckData(state);
-  TEST_ASSERT_EQUAL_FLOAT(2, controller.getMode());
+  TEST_ASSERT_EQUAL_INT_MESSAGE(2, controller.getMode(),"Mode should be 2");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(4, controller.getLedsFlashCycle1(),
+                                "Led 2 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
+                                "Led should be flashing to indicate mode change");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getFlashFast(),
+                                "Flashing should be slow");
 }
 
 void testModeChangeTo2(void) {
@@ -46,7 +65,14 @@ void testModeChangeTo2(void) {
   state.y = -100;
 
   controller.processChuckData(state);
-  TEST_ASSERT_EQUAL_FLOAT(2, controller.getMode());
+  TEST_ASSERT_EQUAL_INT_MESSAGE(2, controller.getMode(),"Mode should be 2");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(4, controller.getLedsFlashCycle1(),
+                                "Led 2 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(
+      0, controller.getLedsFlashCycle2(),
+      "Led should be flashing to indicate mode change");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getFlashFast(),
+                                "Flashing should be slow");
 }
 
 void testModeChangeTo3(void) {
@@ -59,7 +85,14 @@ void testModeChangeTo3(void) {
   state.y = 0;
 
   controller.processChuckData(state);
-  TEST_ASSERT_EQUAL_FLOAT(3, controller.getMode());
+  TEST_ASSERT_EQUAL_INT_MESSAGE(3, controller.getMode(), "Mode should be 3");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(8, controller.getLedsFlashCycle1(),
+                                "Led 3 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(
+      0, controller.getLedsFlashCycle2(),
+      "Led should be flashing to indicate mode change");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getFlashFast(),
+                                "Flashing should be slow");
 }
 
 void testSpeedAndModeChange() {
@@ -80,6 +113,13 @@ void testSpeedAndModeChange() {
   TEST_ASSERT_EQUAL_INT_MESSAGE(-1100, controller.getSpeed(),
                                 "Should be running backward");
 
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getLedsFlashCycle1(),
+                                "Led 0 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
+                                "Led 0 should be flashing");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getFlashFast(),
+                                "Flashing should be fast");
+
   //change to mode 1
   state.z = 1;
   state.c = 0;
@@ -88,6 +128,12 @@ void testSpeedAndModeChange() {
 
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getMode(),"Should have changed to mode 1");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(2, controller.getLedsFlashCycle1(),
+                                "Led 1 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
+                                "Led should be flashing");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getFlashFast(),
+                                "Flashing should be slow");
 
   state.z = 0;
   state.c = 0;
@@ -98,6 +144,12 @@ void testSpeedAndModeChange() {
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(-11000, controller.getSpeed(),
                                 "Should be running faster backward");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(2, controller.getLedsFlashCycle1(),
+                                "Led 1 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
+                                "Led 1 should be flashing");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getFlashFast(),
+                                "Flashing should be fast");
 }
 
 void testSpeedMappingDown() {
@@ -116,7 +168,14 @@ void testSpeedMappingDown() {
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(-1100, controller.getSpeed(),
                                 "Should be running backward");
-  
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMode(),
+                                "Should be mode 0");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getLedsFlashCycle1(),
+                                "Led 0 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
+                                "Led should be flashing");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getFlashFast(),
+                                "Flashing should be fast");
 }
 
 void testSpeedMappingUp() {

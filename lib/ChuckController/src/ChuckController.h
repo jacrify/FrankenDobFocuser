@@ -12,6 +12,9 @@ private:
   int minSpeeds[MODE_COUNT];
   int maxSpeeds[MODE_COUNT];
   int limitFlag;
+  int ledFlashCycle1 = 0;
+  int ledFlashCycle2 = 0;
+  bool flashFast;
 
 public:
   void processChuckData(wii_i2c_nunchuk_state state);
@@ -22,5 +25,8 @@ public:
   void setModeParameters(int mode, int minSpeedInHz, int maxSpeedInHz);
   int getAndFlipLimitFlag();
   bool isLimitFindingModeOn(); // when this mode is on we ignore limits when moving motor
+  int getLedsFlashCycle1(); //bitwise leds that should be lit on cycle1. 1=1, 2=2, 4=3, 8=4.
+  int getLedsFlashCycle2(); // bitwise leds that should be flashed. 1=1, 2=2, 4=3, 8=4.
+  bool getFlashFast(); //if true flash fast, otherwise flash slow
 };
 #endif

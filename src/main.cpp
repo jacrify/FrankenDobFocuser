@@ -3,6 +3,7 @@
 #include "NunChuk.h"
 #include <Arduino.h>
 
+
 int maxSpeed = 100000;
 int deadZone = 10;
 int wimax = 101;
@@ -18,7 +19,7 @@ void setup() {
   motorUnit.setupMotor();
   nunChuk.setUpNunChuk();
 
-  
+
   // motorUnit.move(5000);
 }
 
@@ -27,6 +28,7 @@ void loop() {
   if (nunChuk.resetLimitRequested()) {
     motorUnit.resetLimit(); // set position to zero.
   }
+
   int speed = nunChuk.getSpeed();
   // log("Speed is %d", speed);
   if (speed == 0)
@@ -41,5 +43,5 @@ void loop() {
       log("In normal move mode");
     }
   }
-  delay(100);
+  delay(20);
 }

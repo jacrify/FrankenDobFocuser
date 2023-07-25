@@ -285,6 +285,61 @@ void testFindLimit() {
                                 "Second call for limit flag should be zero");
 }
 
+/* - If c button pushed, then direction chooses a memory location (release to
+choose and move to position in that slot). Releasing in middle chooses no
+memory. Further moves by user will update that memory location.
+- If c button pushed and held, then direction chooses a memory location (release
+to choose and save current position to that slot). Releasing in middle chooses
+no memory. Further moves by user will update that memory location.
+*/
+
+void testMemoryMode(void) {
+  wii_i2c_nunchuk_state state;
+  ChuckController controller;
+  controller.setMode(0);
+
+//move controller up, push c. Should indicate up mode 0 memory select
+  state.z = 0;
+  state.c = 1;
+  state.x = 0;
+  state.y = 100;
+  state.millis = 0;
+  controller.setMode(0);
+
+  controller.processChuckData(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(2+4+8, controller.getLedsFlashCycle1(),
+                                "All Leds except 1 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(
+      0, controller.getLedsFlashCycle2(),
+      "Leds  should be flashing to indicate memory select ");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getFlashFast(),
+                                "Flashing should be slow");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMemoryPosition(),
+                                "Memory position should be -1");
+
+  // button released. Memory move should be selected
+  state.z = 0;
+  state.c = 0;
+  state.x = 0;
+  state.y = 100;
+  state.millis = 100;
+
+  controller.processChuckData(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(14, controller.getLedsFlashCycle1(),
+                                "Led 0 should not be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
+                                "Should be flashing");
+
+  TEST_ASSERT_EQUAL_MESSAGE(true, controller.getAndFlipMemoryMoveFlag(),
+                                "Memory move should flagged");
+  TEST_ASSERT_EQUAL_MESSAGE(false, controller.getAndFlipMemoryMoveFlag(),
+                                 "Flag should be cleared");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMemoryPosition(),
+                                "Memory position should be 0");
+}
+
+
   void setup() {
     UNITY_BEGIN(); // IMPORTANT LINE!
     RUN_TEST(testModeChangeTo1);
@@ -295,6 +350,7 @@ void testFindLimit() {
     RUN_TEST(testSpeedMappingDown);
     RUN_TEST(testSpeedAndModeChange);
     RUN_TEST(testFindLimit);
+    RUN_TEST(testMemoryMode);
 
     UNITY_END(); // IMPORTANT LINE!
   }

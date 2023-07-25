@@ -15,6 +15,12 @@ private:
   int ledFlashCycle1 = 0;
   int ledFlashCycle2 = 0;
   bool flashFast;
+  int memorySlot = -1;
+  bool memoryMoveFlag = 0;
+  unsigned long twoButtonsPressedTime = 0;
+  bool twoButtonPressedFlag = false;
+
+  int isLimitFindingMode = 0;
 
 public:
   void processChuckData(wii_i2c_nunchuk_state state);
@@ -23,10 +29,12 @@ public:
   int getMode();
   void setMode(int mode);
   void setModeParameters(int mode, int minSpeedInHz, int maxSpeedInHz);
-  int getAndFlipLimitFlag();
+  bool getAndFlipLimitFlag();
   bool isLimitFindingModeOn(); // when this mode is on we ignore limits when moving motor
   int getLedsFlashCycle1(); //bitwise leds that should be lit on cycle1. 1=1, 2=2, 4=3, 8=4.
   int getLedsFlashCycle2(); // bitwise leds that should be flashed. 1=1, 2=2, 4=3, 8=4.
   bool getFlashFast(); //if true flash fast, otherwise flash slow
+  bool getAndFlipMemoryMoveFlag(); // return whether a memory move is required
+  int getMemoryPosition();//returns the currently active memory slot. -1 means no slot selected.
 };
 #endif

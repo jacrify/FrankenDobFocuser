@@ -288,7 +288,7 @@ void testFindLimit() {
 /* - If c button pushed, then direction chooses a memory location (release to
 choose and move to position in that slot). Releasing in middle chooses no
 memory. Further moves by user will update that memory location.
-- If c button pushed and held, then direction chooses a memory location (release
+- If c button pushed and held without a direction, then direction chooses a memory location (release
 to choose and save current position to that slot). Releasing in middle chooses
 no memory. Further moves by user will update that memory location.
 */
@@ -316,6 +316,8 @@ void testMemoryMode(void) {
                                 "Flashing should be slow");
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMemoryPosition(),
                                 "Memory position should be -1");
+  TEST_ASSERT_EQUAL_MESSAGE(false, controller.getAndFlipMemoryMoveFlag(),
+                            "Memory move should not be flagged yet");
 
   // button released. Memory move should be selected
   state.z = 0;
@@ -337,8 +339,79 @@ void testMemoryMode(void) {
 
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMemoryPosition(),
                                 "Memory position should be 0");
+
+
+  
 }
 
+void testMemoryModeHold(void) {
+  wii_i2c_nunchuk_state state;
+  ChuckController controller;
+  controller.setMode(0);
+
+  // Controller middle, push c. All LEDs should slash
+  state.z = 0;
+  state.c = 1;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 0;
+  controller.setMode(0);
+
+  controller.processChuckData(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(2 + 4 + 8, controller.getLedsFlashCycle1(),
+                                "All Leds except 1 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(
+      0, controller.getLedsFlashCycle2(),
+      "Leds  should be flashing to indicate memory save ");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getFlashFast(),
+                                "Flashing should be fast");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getMemoryPosition(),
+                                "Memory position should be 1");
+  TEST_ASSERT_EQUAL_MESSAGE(false, controller.getAndFlipMemoryMoveFlag(),
+                            "Memory move should not be flagged yet");
+
+  // button held. Should be in "save memory" mode
+  state.z = 0;
+  state.c = 1;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 5000;
+
+  controller.processChuckData(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(15, controller.getLedsFlashCycle1(),
+                                "All leds should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
+                                "Should be flashing");
+   TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getFlashFast(),
+                                "Flashing should be fast");
+
+  TEST_ASSERT_EQUAL_MESSAGE(false, controller.getAndFlipMemoryMoveFlag(),
+                            "Memory move should not be flagged");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMemoryPosition(),
+                                "Memory position should be 0");
+
+  // button held, direction selected. Should save to that postion
+  state.z = 0;
+  state.c = 1;
+  state.x = 0;
+  state.y = 100;
+  state.millis = 6000;
+
+  controller.processChuckData(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(15, controller.getLedsFlashCycle1(),
+                                "All leds should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
+                                "Should be flashing");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getFlashFast(),
+                                "Flashing should be fast");
+
+  TEST_ASSERT_EQUAL_MESSAGE(false, controller.getAndFlipMemoryMoveFlag(),
+                            "Memory move should not be flagged");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMemoryPosition(),
+                                "Memory position should be 0");
+}
 
   void setup() {
     UNITY_BEGIN(); // IMPORTANT LINE!
@@ -351,6 +424,7 @@ void testMemoryMode(void) {
     RUN_TEST(testSpeedAndModeChange);
     RUN_TEST(testFindLimit);
     RUN_TEST(testMemoryMode);
+    RUN_TEST(testMemoryModeHold);
 
     UNITY_END(); // IMPORTANT LINE!
   }

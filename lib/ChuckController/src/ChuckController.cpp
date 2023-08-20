@@ -74,6 +74,7 @@ int interpolate(int minIn, int maxIn, int minOut, int maxOut, int value) {
   return minOut + ((value - minIn) * (maxOut - minOut)) / (maxIn - minIn);
 }
 
+
 bool ChuckController::isLimitFindingModeOn() { return isLimitFindingMode; }
 
 /*
@@ -90,13 +91,13 @@ limit (0 position) All leds flash fast
 choose and move to position in that slot). Releasing in middle chooses no
 memory. Further moves by user will update that memory location.
 Leds slow flash inverted showing selected memory slot- ie if user is pointing to
-slot 1, leds 0 2 and 3 flash. At middle all leds slow flash. Once released 
+slot 1, leds 0 2 and 3 flash. At middle all leds slow flash. Once released
 led revert to normal behaviour?
-- If c button pushed and held, then direction chooses a memory location (release
-to choose and save current position to that slot). Releasing in middle chooses
-no memory. Further moves by user will update that memory location.
-Leds fast flash inverted showing selected memory slot- ie if user is pointing to
-slot 1, leds 0 2 and 3 flash. At middle all leds fast flash.
+- If c button pushed and held without a direction, then direction chooses a
+memory location (release to choose and save current position to that slot).
+Releasing in middle chooses no memory. Further moves by user will update that
+memory location. Leds fast flash inverted showing selected memory slot- ie if
+user is pointing to slot 1, leds 0 2 and 3 flash. At middle all leds fast flash.
 */
 void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
 
@@ -112,6 +113,11 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     speed = 0;
     isLimitFindingMode = 0;
   }
+  if (state.c == 0 and memoryMoveInitiatatedFlag ==1) {
+    //User has selected a memory location and releases button
+    memoryMoveInitiatatedFlag=false;
+    memoryMoveFlag=true;
+  }
   if (state.z == 0 and state.c == 1) {
     // memory select mode
     if (isUp(state)) {
@@ -119,14 +125,14 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
       ledFlashCycle1 = 16 - pow(2, 1);
       ledFlashCycle2 = 0;
       flashFast=false;
-      memoryMoveFlag = true;
+      memoryMoveInitiatatedFlag = true;
       return;
     } else {
       if (isRight(state)) {
         memorySlot = 1;
         ledFlashCycle1 = 16 - pow(2, 1);
         ledFlashCycle2 = 0;
-        memoryMoveFlag=true;
+        memoryMoveInitiatatedFlag = true;
         flashFast = false;
         return;
       } else {
@@ -134,7 +140,7 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
           memorySlot = 2;
           ledFlashCycle1 = 16 - pow(2, 2);
           ledFlashCycle2 = 0;
-          memoryMoveFlag = true;
+          memoryMoveInitiatatedFlag = true;
           flashFast = false;
           return;
         } else {
@@ -142,10 +148,11 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
             memorySlot = 3;
             ledFlashCycle1 = 16 - pow(2, 3);
             ledFlashCycle2 = 0;
-            memoryMoveFlag = true;
+            memoryMoveInitiatatedFlag = true;
             flashFast = false;
             return;
           } else {
+            //non direction selected
             memorySlot = -1;
             ledFlashCycle1 = 15;
             ledFlashCycle2 = 0;

@@ -17,6 +17,8 @@ private:
   bool flashFast;
   int memorySlot = -1;
   bool memoryMoveFlag = 0;
+  bool memoryMoveInitiatatedFlag = 0;
+  
   unsigned long twoButtonsPressedTime = 0;
   bool twoButtonPressedFlag = false;
 

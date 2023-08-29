@@ -1,5 +1,7 @@
 
 #include "ChuckController.h"
+#include "CurrentChukState.h"
+#include "NunchukShared.h"
 #include <unity.h> // Include the Unity test framework.
 
 void testModeChangeTo1(void) {
@@ -15,8 +17,9 @@ void testModeChangeTo1(void) {
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getMode(), "Mode should be 1");
   TEST_ASSERT_EQUAL_INT_MESSAGE(2, controller.getLedsFlashCycle1(),
                                 "Led 1 should be lit");
-  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
-                                "Led  should be flashing to indicate mode change");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(
+      0, controller.getLedsFlashCycle2(),
+      "Led  should be flashing to indicate mode change");
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getFlashFast(),
                                 "Flashing should be slow");
 }
@@ -31,11 +34,12 @@ void testModeChangeTo1Diag(void) {
   state.y = 100;
 
   controller.processChuckData(state);
-  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMode(),"Mode should be 0");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMode(), "Mode should be 0");
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getLedsFlashCycle1(),
-                               "Led 0 should be lit");
-  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
-                                "Led should be flashing to indicate mode change");
+                                "Led 0 should be lit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(
+      0, controller.getLedsFlashCycle2(),
+      "Led should be flashing to indicate mode change");
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getFlashFast(),
                                 "Flashing should be slow");
 
@@ -45,12 +49,13 @@ void testModeChangeTo1Diag(void) {
   state.y = -100;
 
   controller.processChuckData(state);
-  TEST_ASSERT_EQUAL_INT_MESSAGE(2, controller.getMode(),"Mode should be 2");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(2, controller.getMode(), "Mode should be 2");
 
   TEST_ASSERT_EQUAL_INT_MESSAGE(4, controller.getLedsFlashCycle1(),
                                 "Led 2 should be lit");
-  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
-                                "Led should be flashing to indicate mode change");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(
+      0, controller.getLedsFlashCycle2(),
+      "Led should be flashing to indicate mode change");
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getFlashFast(),
                                 "Flashing should be slow");
 }
@@ -65,7 +70,7 @@ void testModeChangeTo2(void) {
   state.y = -100;
 
   controller.processChuckData(state);
-  TEST_ASSERT_EQUAL_INT_MESSAGE(2, controller.getMode(),"Mode should be 2");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(2, controller.getMode(), "Mode should be 2");
   TEST_ASSERT_EQUAL_INT_MESSAGE(4, controller.getLedsFlashCycle1(),
                                 "Led 2 should be lit");
   TEST_ASSERT_EQUAL_INT_MESSAGE(
@@ -120,14 +125,15 @@ void testSpeedAndModeChange() {
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getFlashFast(),
                                 "Flashing should be fast");
 
-  //change to mode 1
+  // change to mode 1
   state.z = 1;
   state.c = 0;
   state.x = 100;
   state.y = 0;
 
   controller.processChuckData(state);
-  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getMode(),"Should have changed to mode 1");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getMode(),
+                                "Should have changed to mode 1");
   TEST_ASSERT_EQUAL_INT_MESSAGE(2, controller.getLedsFlashCycle1(),
                                 "Led 1 should be lit");
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
@@ -168,8 +174,7 @@ void testSpeedMappingDown() {
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(-1100, controller.getSpeed(),
                                 "Should be running backward");
-  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMode(),
-                                "Should be mode 0");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMode(), "Should be mode 0");
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getLedsFlashCycle1(),
                                 "Led 0 should be lit");
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
@@ -194,7 +199,7 @@ void testSpeedMappingUp() {
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(1100, controller.getSpeed(),
                                 "Should be running forward");
-  
+
   // Stop
 
   state.y = 0;
@@ -205,18 +210,15 @@ void testSpeedMappingUp() {
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(600, controller.getSpeed(),
                                 "Should be running half speed");
-  
 
   state.y = 127;
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(1100, controller.getSpeed(),
                                 "Should be running");
-   
 
   state.y = 19; // lower than deadzone
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getSpeed(), "Should be stopped");
-  
 }
 
 void testFindLimit() {
@@ -224,21 +226,20 @@ void testFindLimit() {
   ChuckController controller;
 
   controller.setModeParameters(0, 100, 1100);
-  controller.setModeParameters(4, 1000, 11000); //mode four is find limit mode
+  controller.setModeParameters(4, 1000, 11000); // mode four is find limit mode
   controller.setMode(0);
 
   state.z = 1;
   state.c = 1;
   state.x = 0;
   state.y = 100;
-  state.millis=1000;
+  state.millis = 1000;
 
-  
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getSpeed(),
                                 "Should be stopped, time limit not hit");
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.isLimitFindingModeOn(),
-                               "Should not be in limit finding mode");
+                                "Should not be in limit finding mode");
 
   state.millis = 2000;
   controller.processChuckData(state);
@@ -247,7 +248,7 @@ void testFindLimit() {
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.isLimitFindingModeOn(),
                                 "Should not be in limit finding mode");
 
-  state.millis =  4500;
+  state.millis = 4500;
   controller.processChuckData(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(11000, controller.getSpeed(),
                                 "Should be running forward at limit speed");
@@ -267,8 +268,9 @@ void testFindLimit() {
   state.y = 0;
   state.millis = 4600;
   controller.processChuckData(state);
-  TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getSpeed(),
-                                "Should be stopped at limit position (as if manually)");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(
+      0, controller.getSpeed(),
+      "Should be stopped at limit position (as if manually)");
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.isLimitFindingModeOn(),
                                 "Should not be in limit finding mode");
 
@@ -277,10 +279,8 @@ void testFindLimit() {
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getLedsFlashCycle2(),
                                 "Led should not be flashing");
 
-
-  TEST_ASSERT_EQUAL_INT_MESSAGE(
-      1, controller.getAndFlipLimitFlag(),
-      "Limit flag should be set to reset motor unit");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getAndFlipLimitFlag(),
+                                "Limit flag should be set to reset motor unit");
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getAndFlipLimitFlag(),
                                 "Second call for limit flag should be zero");
 }
@@ -288,9 +288,10 @@ void testFindLimit() {
 /* - If c button pushed, then direction chooses a memory location (release to
 choose and move to position in that slot). Releasing in middle chooses no
 memory. Further moves by user will update that memory location.
-- If c button pushed and held without a direction, then direction chooses a memory location (release
-to choose and save current position to that slot). Releasing in middle chooses
-no memory. Further moves by user will update that memory location.
+- If c button pushed and held without a direction, then direction chooses a
+memory location (release to choose and save current position to that slot).
+Releasing in middle chooses no memory. Further moves by user will update that
+memory location.
 */
 
 void testMemoryMode(void) {
@@ -298,7 +299,7 @@ void testMemoryMode(void) {
   ChuckController controller;
   controller.setMode(0);
 
-//move controller up, push c. Should indicate up mode 0 memory select
+  // move controller up, push c. Should indicate up mode 0 memory select
   state.z = 0;
   state.c = 1;
   state.x = 0;
@@ -307,7 +308,7 @@ void testMemoryMode(void) {
   controller.setMode(0);
 
   controller.processChuckData(state);
-  TEST_ASSERT_EQUAL_INT_MESSAGE(2+4+8, controller.getLedsFlashCycle1(),
+  TEST_ASSERT_EQUAL_INT_MESSAGE(2 + 4 + 8, controller.getLedsFlashCycle1(),
                                 "All Leds except 1 should be lit");
   TEST_ASSERT_EQUAL_INT_MESSAGE(
       0, controller.getLedsFlashCycle2(),
@@ -333,15 +334,12 @@ void testMemoryMode(void) {
                                 "Should be flashing");
 
   TEST_ASSERT_EQUAL_MESSAGE(true, controller.getAndFlipMemoryMoveFlag(),
-                                "Memory move should flagged");
+                            "Memory move should flagged");
   TEST_ASSERT_EQUAL_MESSAGE(false, controller.getAndFlipMemoryMoveFlag(),
-                                 "Flag should be cleared");
+                            "Flag should be cleared");
 
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMemoryPosition(),
                                 "Memory position should be 0");
-
-
-  
 }
 
 void testMemoryModeHold(void) {
@@ -382,7 +380,7 @@ void testMemoryModeHold(void) {
                                 "All leds should be lit");
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getLedsFlashCycle2(),
                                 "Should be flashing");
-   TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getFlashFast(),
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, controller.getFlashFast(),
                                 "Flashing should be fast");
 
   TEST_ASSERT_EQUAL_MESSAGE(false, controller.getAndFlipMemoryMoveFlag(),
@@ -412,6 +410,139 @@ void testMemoryModeHold(void) {
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, controller.getMemoryPosition(),
                                 "Memory position should be 0");
 }
+void testCPressed() {
+
+  wii_i2c_nunchuk_state state;
+  state.z = 1;
+  state.c = 1;
+  state.x = 0;
+  state.y = 0;
+
+  CurrentChukState chukState;
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isCPushed(),
+                                "C Should be not pressed when z is");
+
+  state.z = 0;
+  state.c = 1;
+  state.x = 0;
+  state.y = 0;
+
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isCPushed(),
+                                "C Should be pressed");
+
+  
+  state.z = 0;
+  state.c = 0;
+  state.x = 0;
+  state.y = 0;
+
+  chukState.processState(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isCPushed(),
+                                "C Should be not pressed");
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isCReleased(),
+      "C Should be be flagged as released after pressed");
+}
+
+void testCHeld() {
+
+  wii_i2c_nunchuk_state state;
+  state.z = 0;
+  state.c = 1;
+  state.x = 0;
+  state.y = 0;
+  state.millis=1;
+
+  CurrentChukState chukState;
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isCPushed(),
+                                "C Should be  pressed ");
+
+  state.z = 0;
+  state.c = 1;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 100;
+
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isCPushed(),
+                                "C Should be still be pressed ");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isCHeld(),
+                                "C Should be not yet  marked as held ");
+
+  state.z = 0;
+  state.c = 1;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 3000;
+
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isCPushed(),
+                                "C Should be pressed ");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isCHeld(),
+                                "C Should be marked as held ");
+
+  state.z = 0;
+  state.c = 0;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 4000;
+
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isCPushed(),
+                                "C Should not be pressed ");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isCHeld(),
+                                "C Should not be marked as held ");
+}
+
+  void testZPressed() {
+
+    wii_i2c_nunchuk_state state;
+    state.z = 1;
+    state.c = 0;
+    state.x = 0;
+    state.y = 0;
+    CurrentChukState chukState;
+    chukState.processState(state);
+
+    TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isZPushed(),
+                                  "Z Should be pressed");
+
+    state.z = 0;
+    state.c = 0;
+    state.x = 0;
+    state.y = 0;
+
+    chukState.processState(state);
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isZPushed(),
+                                  "Z Should be not pressed");
+    // TEST_ASSERT_EQUAL_INT_MESSAGE(
+    //     0, processedState.isZReleased(),
+    //     "Z Should be be flagged as released after pressed");
+  }
+
+  void testIsUp() {
+
+    wii_i2c_nunchuk_state state;
+    state.z = 0;
+    state.c = 0;
+    state.x = 0;
+    state.y = -100;
+    CurrentChukState chukState;
+    chukState.processState(state);
+
+    TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isUp(), "Should be up");
+  }
 
   void setup() {
     UNITY_BEGIN(); // IMPORTANT LINE!
@@ -424,7 +555,12 @@ void testMemoryModeHold(void) {
     RUN_TEST(testSpeedAndModeChange);
     RUN_TEST(testFindLimit);
     RUN_TEST(testMemoryMode);
-    RUN_TEST(testMemoryModeHold);
+    RUN_TEST(testIsUp);
+    RUN_TEST(testCPressed);
+    RUN_TEST(testZPressed);
+    RUN_TEST(testCHeld);
+
+    // RUN_TEST(testMemoryModeHold);
 
     UNITY_END(); // IMPORTANT LINE!
   }

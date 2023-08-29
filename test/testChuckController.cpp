@@ -434,7 +434,6 @@ void testCPressed() {
   TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isCPushed(),
                                 "C Should be pressed");
 
-  
   state.z = 0;
   state.c = 0;
   state.x = 0;
@@ -443,7 +442,8 @@ void testCPressed() {
   chukState.processState(state);
   TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isCPushed(),
                                 "C Should be not pressed");
-  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isCReleased(),
+  TEST_ASSERT_EQUAL_INT_MESSAGE(
+      1, chukState.isCReleased(),
       "C Should be be flagged as released after pressed");
 }
 
@@ -454,7 +454,7 @@ void testCHeld() {
   state.c = 1;
   state.x = 0;
   state.y = 0;
-  state.millis=1;
+  state.millis = 1;
 
   CurrentChukState chukState;
   chukState.processState(state);
@@ -505,71 +505,202 @@ void testCHeld() {
                                 "C Should not be marked as held ");
 }
 
-  void testZPressed() {
+void testZHeld() {
 
-    wii_i2c_nunchuk_state state;
-    state.z = 1;
-    state.c = 0;
-    state.x = 0;
-    state.y = 0;
-    CurrentChukState chukState;
-    chukState.processState(state);
+  wii_i2c_nunchuk_state state;
+  state.z = 1;
+  state.c = 0;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 1;
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isZPushed(),
-                                  "Z Should be pressed");
+  CurrentChukState chukState;
+  chukState.processState(state);
 
-    state.z = 0;
-    state.c = 0;
-    state.x = 0;
-    state.y = 0;
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isZPushed(),
+                                "Z Should be  pressed ");
 
-    chukState.processState(state);
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isZPushed(),
-                                  "Z Should be not pressed");
-    // TEST_ASSERT_EQUAL_INT_MESSAGE(
-    //     0, processedState.isZReleased(),
-    //     "Z Should be be flagged as released after pressed");
-  }
+  state.z = 1;
+  state.c = 0;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 100;
 
-  void testIsUp() {
+  chukState.processState(state);
 
-    wii_i2c_nunchuk_state state;
-    state.z = 0;
-    state.c = 0;
-    state.x = 0;
-    state.y = -100;
-    CurrentChukState chukState;
-    chukState.processState(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isZPushed(),
+                                "Z Should be still be pressed ");
 
-    TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isUp(), "Should be up");
-  }
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isZHeld(),
+                                "Z Should be not yet  marked as held ");
 
-  void setup() {
-    UNITY_BEGIN(); // IMPORTANT LINE!
-    RUN_TEST(testModeChangeTo1);
-    RUN_TEST(testModeChangeTo1Diag);
-    RUN_TEST(testModeChangeTo2);
-    RUN_TEST(testModeChangeTo3);
-    RUN_TEST(testSpeedMappingUp);
-    RUN_TEST(testSpeedMappingDown);
-    RUN_TEST(testSpeedAndModeChange);
-    RUN_TEST(testFindLimit);
-    RUN_TEST(testMemoryMode);
-    RUN_TEST(testIsUp);
-    RUN_TEST(testCPressed);
-    RUN_TEST(testZPressed);
-    RUN_TEST(testCHeld);
+  state.z = 1;
+  state.c = 0;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 3000;
 
-    // RUN_TEST(testMemoryModeHold);
+  chukState.processState(state);
 
-    UNITY_END(); // IMPORTANT LINE!
-  }
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isZPushed(),
+                                "Z Should be pressed ");
 
-  void loop() {
-    // Do nothing here.
-  }
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isZHeld(),
+                                "Z Should be marked as held ");
 
-  int main() {
-    setup();
-    return 0;
-  }
+  state.z = 0;
+  state.c = 0;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 4000;
+
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isZPushed(),
+                                "Z Should not be pressed ");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isZHeld(),
+                                " Z Should not be marked as held ");
+}
+
+void testBothHeld() {
+
+  wii_i2c_nunchuk_state state;
+  state.z = 1;
+  state.c = 1;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 1;
+
+  CurrentChukState chukState;
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isBothPushed(),
+                                "Both Should be  pressed ");
+
+  state.z = 1;
+  state.c = 1;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 100;
+
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isBothPushed(),
+                                "Both Should be still be pressed ");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isBothHeld(),
+                                "Both Should be not yet  marked as held ");
+
+  state.z = 1;
+  state.c = 1;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 3000;
+
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isBothPushed(),
+                                "Both Should be pressed ");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isBothHeld(),
+                                "Both Should be marked as held ");
+
+  state.z = 0;
+  state.c = 1;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 4000;
+
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isBothPushed(),
+                                "Both Should not be pressed ");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isBothHeld(),
+                                " Both Should not be marked as held ");
+  state.z = 1;
+  state.c = 0;
+  state.x = 0;
+  state.y = 0;
+  state.millis = 4000;
+
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isBothPushed(),
+                                "Both Should not be pressed ");
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isBothHeld(),
+                                " Both Should not be marked as held ");
+}
+
+void testZPressed() {
+
+  wii_i2c_nunchuk_state state;
+  state.z = 1;
+  state.c = 0;
+  state.x = 0;
+  state.y = 0;
+  CurrentChukState chukState;
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(1, chukState.isZPushed(),
+                                "Z Should be pressed");
+
+  state.z = 0;
+  state.c = 0;
+  state.x = 0;
+  state.y = 0;
+
+  chukState.processState(state);
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isZPushed(),
+                                "Z Should be not pressed");
+  // TEST_ASSERT_EQUAL_INT_MESSAGE(
+  //     0, processedState.isZReleased(),
+  //     "Z Should be be flagged as released after pressed");
+}
+
+void testIsUp() {
+
+  wii_i2c_nunchuk_state state;
+  state.z = 0;
+  state.c = 0;
+  state.x = 0;
+  state.y = -100;
+  CurrentChukState chukState;
+  chukState.processState(state);
+
+  TEST_ASSERT_EQUAL_INT_MESSAGE(0, chukState.isUp(), "Should be up");
+}
+
+void setup() {
+  UNITY_BEGIN(); // IMPORTANT LINE!
+  RUN_TEST(testModeChangeTo1);
+  RUN_TEST(testModeChangeTo1Diag);
+  RUN_TEST(testModeChangeTo2);
+  RUN_TEST(testModeChangeTo3);
+  RUN_TEST(testSpeedMappingUp);
+  RUN_TEST(testSpeedMappingDown);
+  RUN_TEST(testSpeedAndModeChange);
+  RUN_TEST(testFindLimit);
+  RUN_TEST(testMemoryMode);
+  RUN_TEST(testIsUp);
+  RUN_TEST(testCPressed);
+  RUN_TEST(testZPressed);
+  RUN_TEST(testCHeld);
+  RUN_TEST(testZHeld);
+  RUN_TEST(testBothHeld);
+
+  // RUN_TEST(testMemoryModeHold);
+
+  UNITY_END(); // IMPORTANT LINE!
+}
+
+void loop() {
+  // Do nothing here.
+}
+
+int main() {
+  setup();
+  return 0;
+}

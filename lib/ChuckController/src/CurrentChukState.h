@@ -8,10 +8,15 @@
 
 class CurrentChukState {
   // wrapper method for the current state of the chuck
+  // holds current state and last state. All simple
+  // checks are delegated by public method to
+  // private method that checks current state.
+  // These private methods are also used to check
+  // the last state for more complex operations
+  // like isNewlyPressed, ie was it pushed last time
+  // Also handles hold down, by storing time
+  // button first pushed.
 public:
-  
-  
-
   void processState(wii_i2c_nunchuk_state s);
   bool isUp();
   bool isDown();
@@ -21,6 +26,7 @@ public:
   bool isCPushed();
   bool isZPushed();
   bool isBothPushed();
+  bool isBothNotPushed();
 
   bool isCNewlyPushed();
   bool isZNewlyPushed();
@@ -51,5 +57,6 @@ private:
   bool isCPushed(wii_i2c_nunchuk_state s);
   bool isZPushed(wii_i2c_nunchuk_state s);
   bool isBothPushed(wii_i2c_nunchuk_state s);
+  bool isNeitherPushed(wii_i2c_nunchuk_state s);
 };
 #endif

@@ -14,7 +14,7 @@ void CurrentChukState::processState(wii_i2c_nunchuk_state state) {
     cPushedTime = 0;
   if (isZReleased())
     zPushedTime = 0;
-  if (isBothReleased())
+  if (!isBothPushed())
     bothPushedTime = 0;
 }
 
@@ -68,8 +68,17 @@ bool CurrentChukState::isZPushed(wii_i2c_nunchuk_state state) {
   return (state.z == 1 and state.c == 0);
 }
 bool CurrentChukState::isBothPushed() { return isBothPushed(currentState); }
+
+bool CurrentChukState::isBothNotPushed() {
+  return isNeitherPushed(currentState);
+}
+
+bool CurrentChukState::isNeitherPushed(wii_i2c_nunchuk_state state) {
+  return (state.z == 0 and state.c == 0);
+}
+
 bool CurrentChukState::isBothPushed(wii_i2c_nunchuk_state state) {
-  return (state.z == 1 and state.c == 1);
+  return (state.z == 1 && state.c == 1);
 }
 
 bool CurrentChukState::isCNewlyPushed() {
@@ -83,7 +92,7 @@ bool CurrentChukState::isCReleased() {
 bool CurrentChukState::isCHeld() {
   if (cPushedTime == 0)
     return false;
-  return ((currentState.millis-cPushedTime)>HOLDTIME_MILLIS);
+  return ((currentState.millis - cPushedTime) > HOLDTIME_MILLIS);
 }
 
 bool CurrentChukState::isZNewlyPushed() {
@@ -97,7 +106,7 @@ bool CurrentChukState::isZReleased() {
 bool CurrentChukState::isZHeld() {
   if (zPushedTime == 0)
     return false;
-  return ((currentState.millis-zPushedTime )> HOLDTIME_MILLIS);
+  return ((currentState.millis - zPushedTime) > HOLDTIME_MILLIS);
 }
 
 bool CurrentChukState::isBothNewlyPushed() {
@@ -111,5 +120,9 @@ bool CurrentChukState::isBothReleased() {
 bool CurrentChukState::isBothHeld() {
   if (bothPushedTime == 0)
     return false;
-  return ((currentState.millis-bothPushedTime ) > HOLDTIME_MILLIS);
+  return ((currentState.millis - bothPushedTime) > HOLDTIME_MILLIS);
+}
+
+bool CurrentChukState::isBothReleasedAfterHeld() {
+  return ( !isBothPushed(currentState) && isBothPushed(lastState) );
 }

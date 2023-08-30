@@ -2,6 +2,7 @@
 #define CHUCK_CONTROLLER
 
 #include "NunchukShared.h"
+#include "CurrentChukState.h"
 #define MODE_COUNT 5 // 0 up 1 right 2 down 3 left 4 limitfinder
 
 class ChuckController {
@@ -19,9 +20,7 @@ private:
   bool memoryMoveFlag = 0;
   bool memoryMoveInitiatatedFlag = 0;
   
-  unsigned long twoButtonsPressedTime = 0;
-  bool twoButtonPressedFlag = false;
-
+  
   int isLimitFindingMode = 0;
 
 public:
@@ -38,5 +37,7 @@ public:
   bool getFlashFast(); //if true flash fast, otherwise flash slow
   bool getAndFlipMemoryMoveFlag(); // return whether a memory move is required
   int getMemoryPosition();//returns the currently active memory slot. -1 means no slot selected.
+private:
+  CurrentChukState currentState;
 };
 #endif

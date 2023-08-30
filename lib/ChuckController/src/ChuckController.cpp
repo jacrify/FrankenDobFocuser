@@ -7,48 +7,15 @@
 
 #define FIND_LIMIT_MODE_NUMBER 4
 
-#define TWO_BUTTON_TIME_MILLIS 3000
+int getNewMode(CurrentChukState state) {
 
-bool isRight(wii_i2c_nunchuk_state state) {
-  if (state.x >= DEADZONE)
-    if (state.x > abs(state.y))
-      return true;
-
-  return false;
-}
-
-bool isLeft(wii_i2c_nunchuk_state state) {
-  if (state.x <= -DEADZONE)
-    if (abs(state.x) > abs(state.y))
-      return true;
-
-  return false;
-}
-
-bool isDown(wii_i2c_nunchuk_state state) {
-  if (state.y <= -DEADZONE)
-    if (abs(state.y) > abs(state.x))
-      return true;
-
-  return false;
-}
-
-bool isUp(wii_i2c_nunchuk_state state) {
-  if (state.y >= DEADZONE)
-    if (abs(state.y) > abs(state.x))
-      return true;
-
-  return false;
-}
-int getNewMode(wii_i2c_nunchuk_state state) {
-
-  if (isRight(state))
+  if (state.isRight())
     return 1;
-  if (isDown(state))
+  if (state.isDown())
     return 2;
-  if (isLeft(state))
+  if (state.isLeft())
     return 3;
-  if (isUp(state))
+  if (state.isUp())
     return 0;
   return -1;
 }
@@ -73,7 +40,6 @@ int interpolate(int minIn, int maxIn, int minOut, int maxOut, int value) {
   // Perform interpolation
   return minOut + ((value - minIn) * (maxOut - minOut)) / (maxIn - minIn);
 }
-
 
 bool ChuckController::isLimitFindingModeOn() { return isLimitFindingMode; }
 
@@ -100,35 +66,59 @@ memory location. Leds fast flash inverted showing selected memory slot- ie if
 user is pointing to slot 1, leds 0 2 and 3 flash. At middle all leds fast flash.
 */
 void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
+  currentState.processState(state);
 
-  if ((state.z == 0 or state.c == 0) and twoButtonPressedFlag) {
-    // user let go of buttons, after holding them down
-    if (state.millis - twoButtonsPressedTime > TWO_BUTTON_TIME_MILLIS) {
-      // held down for long enough. Flag for limit reset
-      limitFlag = 1;
-      setMode(mode); // to set leds
+  // Both buttons held for 3 seconds. We're in find limit mode. Let them
+  // move up and down. When they stop, that's the limit.
+  if (currentState.isBothHeld()) {
+    isLimitFindingMode = 1;
+    ledFlashCycle1 = 1 + 2 + 4 + 8;
+    flashFast = 1;
+
+    if (currentState.isUp()) {
+      speed = interpolate(DEADZONE, MAX_AXIS, minSpeeds[FIND_LIMIT_MODE_NUMBER],
+                          maxSpeeds[FIND_LIMIT_MODE_NUMBER], state.y);
+      return;
     }
-    twoButtonsPressedTime = 0; // reset time
-    twoButtonPressedFlag = false;
+    if (currentState.isDown()) {
+      speed =
+          -interpolate(DEADZONE, MAX_AXIS, minSpeeds[FIND_LIMIT_MODE_NUMBER],
+                       maxSpeeds[FIND_LIMIT_MODE_NUMBER], -state.y);
+      return;
+    }
     speed = 0;
+    return;
+  }
+  
+  // User let go of buttons, after holding them down
+  // Set flag for limit reset
+  if (currentState.isBothReleasedAfterHeld()) {  
+    limitFlag = 1;
+    setMode(mode); // to set leds
+    ledFlashCycle2 = ledFlashCycle1; // don't flash 
     isLimitFindingMode = 0;
+    speed = 0; //?
+    return;
   }
-  if (state.c == 0 and memoryMoveInitiatatedFlag ==1) {
-    //User has selected a memory location and releases button
-    memoryMoveInitiatatedFlag=false;
-    memoryMoveFlag=true;
+
+  // User has selected a memory location and released button
+  if (currentState.isCReleased() && memoryMoveInitiatatedFlag == 1) {
+    memoryMoveInitiatatedFlag = false;
+    memoryMoveFlag = true;
+    return;
   }
-  if (state.z == 0 and state.c == 1) {
-    // memory select mode
-    if (isUp(state)) {
+
+  // memory select mode
+  if (currentState.isCPushed()) {
+    if (currentState.isUp()) {
       memorySlot = 0;
       ledFlashCycle1 = 16 - pow(2, 1);
       ledFlashCycle2 = 0;
-      flashFast=false;
+      flashFast = false;
       memoryMoveInitiatatedFlag = true;
       return;
     } else {
-      if (isRight(state)) {
+      if (currentState.isRight()) {
         memorySlot = 1;
         ledFlashCycle1 = 16 - pow(2, 1);
         ledFlashCycle2 = 0;
@@ -136,7 +126,7 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
         flashFast = false;
         return;
       } else {
-        if (isDown(state)) {
+        if (currentState.isDown()) {
           memorySlot = 2;
           ledFlashCycle1 = 16 - pow(2, 2);
           ledFlashCycle2 = 0;
@@ -144,7 +134,7 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
           flashFast = false;
           return;
         } else {
-          if (isLeft(state)) {
+          if (currentState.isLeft()) {
             memorySlot = 3;
             ledFlashCycle1 = 16 - pow(2, 3);
             ledFlashCycle2 = 0;
@@ -152,23 +142,23 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
             flashFast = false;
             return;
           } else {
-            //non direction selected
+            // non direction selected
             memorySlot = -1;
             ledFlashCycle1 = 15;
             ledFlashCycle2 = 0;
-            
+
             flashFast = false;
             return;
           }
         }
       }
     };
-    
   };
 
   // check for mode change mode
-  if (state.z == 1 and state.c == 0) {
-    int newMode = getNewMode(state);
+  if (currentState.isZPushed()) {
+    // if (state.z == 1 and state.c == 0) {
+    int newMode = getNewMode(currentState);
     if (newMode != -1) {
       mode = newMode;
 
@@ -178,9 +168,11 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     }
     return;
   }
-  if (state.z == 0 and state.c == 0) {
-    // basic speed interpolation mode
-    if (isUp(state)) {
+  
+  //Neither button held, basic interpolation mode
+  if (currentState.isBothNotPushed()) {
+    
+    if (currentState.isUp()) {
       speed = interpolate(DEADZONE, MAX_AXIS, minSpeeds[mode], maxSpeeds[mode],
                           state.y);
 
@@ -189,7 +181,7 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
 
       return;
     }
-    if (isDown(state)) {
+    if (currentState.isDown()) {
       speed = -interpolate(DEADZONE, MAX_AXIS, minSpeeds[mode], maxSpeeds[mode],
                            -state.y);
       ledFlashCycle2 = 0; // flash when moving
@@ -202,43 +194,9 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     // dir=0;
     return;
   }
+  speed=0;
 
-  if (state.z == 1 and state.c == 1) {
-    speed = 0;
-    if (twoButtonPressedFlag) {
-      if (state.millis - twoButtonsPressedTime > TWO_BUTTON_TIME_MILLIS) {
-        // Both buttons held for 3 seconds. We're in find limit mode. Let them
-        // move up and down. When they stop, that's the limit.
-        isLimitFindingMode = 1;
-        ledFlashCycle1 = 1 + 2 + 4 + 8;
-        flashFast = 1;
-
-        if (isUp(state)) {
-          speed =
-              interpolate(DEADZONE, MAX_AXIS, minSpeeds[FIND_LIMIT_MODE_NUMBER],
-                          maxSpeeds[FIND_LIMIT_MODE_NUMBER], state.y);
-          return;
-        }
-        if (isDown(state)) {
-          speed = -interpolate(DEADZONE, MAX_AXIS,
-                               minSpeeds[FIND_LIMIT_MODE_NUMBER],
-                               maxSpeeds[FIND_LIMIT_MODE_NUMBER], -state.y);
-          return;
-        }
-
-        speed = 0;
-        // dir=0;
-        return;
-      } else
-        return; // still waiting, nothing to see here
-    } else {
-      // use just pressed both. Store time and wait.
-      twoButtonsPressedTime = state.millis;
-      twoButtonPressedFlag = true;
-      return;
-    }
-  }
-  return;
+  
 }
 
 int ChuckController::getSpeed() { return speed; }

@@ -2,6 +2,12 @@
 #include "MotorUnit.h"
 #include "NunChuk.h"
 #include <Arduino.h>
+#include "Network.h"
+#include "alpacaWebServer.h"
+
+
+
+#include <LittleFS.h>
 
 
 int maxSpeed = 100000;
@@ -13,15 +19,17 @@ NunChuk nunChuk;
 
 void setup() {
   Serial.begin(115200);
-  delay(300);
-  Serial.println("Booting");
   
+  Serial.println("Booting");
+
+  setupWifi();
+  delay(500);
+  LittleFS.begin();
 
   motorUnit.setupMotor();
   nunChuk.setUpNunChuk();
+  setupWebServer(motorUnit);
 
-
-  // motorUnit.move(5000);
 }
 
 void loop() {
@@ -34,7 +42,7 @@ void loop() {
 
   
   int speed = nunChuk.getSpeed();
-  log("Speed is %d", speed);
+  
   if (speed == 0)
     motorUnit.stop();
   else {

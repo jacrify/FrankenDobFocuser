@@ -1,7 +1,11 @@
 #ifndef MOTORUNIT_H
 #define MOTORUNIT_H
 
+#include <Preferences.h>
+
 #define ENDPOSITION 266494
+#define MAXINCREMENT 266494
+
 class MotorUnit {
 
 public:
@@ -9,11 +13,18 @@ public:
   void motorLoop();
   void move(int speed);
   void moveSafely(int speed);
-
-  int getPosition();
-  
-  void stop();
+  void moveTo(int32_t pos, int speedInHz);
+  bool isMoving();
+  int32_t getLimitPosition();
+  int32_t getMaxIncrement();
+  int32_t getPosition();
+  int32_t alpacaTargetPosition;
+   void stop();
   void resetLimit();
   int isLimitFindingModeOn();
+  
+private:
+  bool alpacaMoveInProgress;
+  bool checkAlpacaMoveInProgress();
 };
 #endif

@@ -2,8 +2,6 @@
 #include "FastAccelStepper.h"
 #include "Logging.h"
 
-#include <Preferences.h>
-
 FastAccelStepperEngine engine = FastAccelStepperEngine();
 FastAccelStepper *stepper = NULL;
 
@@ -17,13 +15,16 @@ Preferences preferences;
 #define backwardSwitchPin 22
 
 void MotorUnit::setupMotor() {
+  alpacaMoveInProgress = false;
+  alpacaTargetPosition = -1;
+
   engine.init(1);
   stepper = engine.stepperConnectToPin(stepPinStepper);
   // stepper = engine.stepperConnectToPin(stepPinStepper, DRIVER_RMT);
   // stepper = engine.stepperConnectToPin(stepPinStepper, DRIVER_MCPWM_PCNT);
   if (stepper) {
     log("Stepper ok");
-        stepper->setDirectionPin(dirPinStepper);
+    stepper->setDirectionPin(dirPinStepper);
 
     // stepper->setEnablePin(enablePinStepper);
     stepper->setAutoEnable(true);
@@ -42,9 +43,30 @@ void MotorUnit::setupMotor() {
   }
 }
 
-int MotorUnit::getPosition() { return stepper->getCurrentPosition(); }
+int32_t MotorUnit::getPosition() { return stepper->getCurrentPosition(); }
+
+bool MotorUnit::checkAlpacaMoveInProgress() {
+
+  // check if move in progress. If so stop, save pos.
+  // need to call this before allowing other moves
+  if (alpacaMoveInProgress) {
+    uint32_t pos = stepper->getCurrentPosition();
+    if (pos == alpacaTargetPosition) {
+      alpacaMoveInProgress = false;
+      stepper->stopMove();
+      preferences.putUInt(PREF_SAVED_POS_KEY, pos);
+      log("Stopped, saving position %d", pos);
+      return false;
+    } else {
+      return true;
+    }
+  }
+  return false;
+}
 
 void MotorUnit::move(int speed) {
+  if (checkAlpacaMoveInProgress())
+    return;
 
   if (speed > 0) {
     stepper->setSpeedInHz(speed);
@@ -56,6 +78,9 @@ void MotorUnit::move(int speed) {
 }
 
 void MotorUnit::moveSafely(int speed) {
+  // ignore moves when alpaca move in progress
+  if (checkAlpacaMoveInProgress())
+    return;
   if (speed > 0) {
     stepper->setSpeedInHz(speed);
     stepper->moveTo(0);
@@ -65,6 +90,13 @@ void MotorUnit::moveSafely(int speed) {
   }
 }
 
+void MotorUnit::moveTo(int32_t pos, int speedInHz) {
+  // only called from alpaca.
+  alpacaTargetPosition = pos;
+  alpacaMoveInProgress = true;
+  stepper->setSpeedInHz(speedInHz);
+  stepper->moveTo(pos);
+}
 void MotorUnit::resetLimit() {
   stepper->setCurrentPosition(0);
   preferences.putUInt(PREF_SAVED_POS_KEY, 0);
@@ -72,6 +104,9 @@ void MotorUnit::resetLimit() {
 }
 
 void MotorUnit::stop() {
+  if (checkAlpacaMoveInProgress())
+    return;
+
   if (stepper->isRunning()) {
     stepper->stopMove();
     uint32_t pos = stepper->getCurrentPosition();
@@ -79,3 +114,9 @@ void MotorUnit::stop() {
     log("Stopped, saving position %d", pos);
   }
 }
+
+boolean MotorUnit::isMoving() { return stepper->isRunning(); }
+
+int32_t MotorUnit::getLimitPosition() { return ENDPOSITION; }
+
+int32_t MotorUnit::getMaxIncrement() { return MAXINCREMENT; }

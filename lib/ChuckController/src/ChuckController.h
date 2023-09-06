@@ -17,15 +17,14 @@ private:
   int ledFlashCycle2;
   bool flashFast;
 
-
   int isLimitFindingMode;
 
 public:
   ChuckController() {
     ledFlashCycle1 = 0;
     ledFlashCycle2 = 0;
-   
-      isLimitFindingMode = 0;
+
+    isLimitFindingMode = 0;
   }
   void processChuckData(wii_i2c_nunchuk_state state);
   int getSpeed();
@@ -41,7 +40,7 @@ public:
   int getLedsFlashCycle2(); // bitwise leds that should be flashed. 1=1, 2=2,
                             // 4=3, 8=4.
   bool getFlashFast();      // if true flash fast, otherwise flash slow
- 
+
 private:
   CurrentChukState currentState;
 };

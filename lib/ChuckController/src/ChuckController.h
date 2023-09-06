@@ -16,9 +16,7 @@ private:
   int ledFlashCycle1;
   int ledFlashCycle2;
   bool flashFast;
-  int memorySlot;
-  bool memoryMoveFlag;
-  bool memoryMoveInitiatatedFlag;
+
 
   int isLimitFindingMode;
 
@@ -26,9 +24,7 @@ public:
   ChuckController() {
     ledFlashCycle1 = 0;
     ledFlashCycle2 = 0;
-    memorySlot=-1;
-     memoryMoveFlag = 0;
-     memoryMoveInitiatatedFlag=0;
+   
       isLimitFindingMode = 0;
   }
   void processChuckData(wii_i2c_nunchuk_state state);
@@ -45,9 +41,7 @@ public:
   int getLedsFlashCycle2(); // bitwise leds that should be flashed. 1=1, 2=2,
                             // 4=3, 8=4.
   bool getFlashFast();      // if true flash fast, otherwise flash slow
-  bool getAndFlipMemoryMoveFlag(); // return whether a memory move is required
-  int getMemoryPosition(); // returns the currently active memory slot. -1 means
-                           // no slot selected.
+ 
 private:
   CurrentChukState currentState;
 };

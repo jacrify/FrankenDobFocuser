@@ -29,7 +29,7 @@ void loop() {
     motorUnit.resetLimit(); // set position to zero.
   }
 
-  )
+  
   int speed = nunChuk.getSpeed();
   // log("Speed is %d", speed);
   if (speed == 0)

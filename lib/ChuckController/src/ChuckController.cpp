@@ -53,17 +53,7 @@ down, 3 left) Single led flashes slow
 - If z and c buttons pushed and held, then limit finding mode. Moving up and
 down moves motor. On release, the position of the  motor becomes the new end
 limit (0 position) All leds flash fast
-- If c button pushed, then direction chooses a memory location (release to
-choose and move to position in that slot). Releasing in middle chooses no
-memory. Further moves by user will update that memory location.
-Leds slow flash inverted showing selected memory slot- ie if user is pointing to
-slot 1, leds 0 2 and 3 flash. At middle all leds slow flash. Once released
-led revert to normal behaviour?
-- If c button pushed and held without a direction, then direction chooses a
-memory location (release to choose and save current position to that slot).
-Releasing in middle chooses no memory. Further moves by user will update that
-memory location. Leds fast flash inverted showing selected memory slot- ie if
-user is pointing to slot 1, leds 0 2 and 3 flash. At middle all leds fast flash.
+
 */
 void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
   currentState.processState(state);
@@ -101,59 +91,9 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     return;
   }
 
-  // User has selected a memory location and released button
-  if (currentState.isCReleased() && memoryMoveInitiatatedFlag == 1) {
-    memoryMoveInitiatatedFlag = false;
-    memoryMoveFlag = true;
-    return;
-  }
 
-  // memory select mode
-  if (currentState.isCPushed()) {
-    if (currentState.isUp()) {
-      memorySlot = 0;
-      ledFlashCycle1 = 16 - pow(2, 1);
-      ledFlashCycle2 = 0;
-      flashFast = false;
-      memoryMoveInitiatatedFlag = true;
-      return;
-    } else {
-      if (currentState.isRight()) {
-        memorySlot = 1;
-        ledFlashCycle1 = 16 - pow(2, 1);
-        ledFlashCycle2 = 0;
-        memoryMoveInitiatatedFlag = true;
-        flashFast = false;
-        return;
-      } else {
-        if (currentState.isDown()) {
-          memorySlot = 2;
-          ledFlashCycle1 = 16 - pow(2, 2);
-          ledFlashCycle2 = 0;
-          memoryMoveInitiatatedFlag = true;
-          flashFast = false;
-          return;
-        } else {
-          if (currentState.isLeft()) {
-            memorySlot = 3;
-            ledFlashCycle1 = 16 - pow(2, 3);
-            ledFlashCycle2 = 0;
-            memoryMoveInitiatatedFlag = true;
-            flashFast = false;
-            return;
-          } else {
-            // non direction selected
-            memorySlot = -1;
-            ledFlashCycle1 = 15;
-            ledFlashCycle2 = 0;
 
-            flashFast = false;
-            return;
-          }
-        }
-      }
-    };
-  };
+ 
 
   // check for mode change mode
   if (currentState.isZPushed()) {
@@ -229,17 +169,3 @@ int ChuckController::getLedsFlashCycle1() { return ledFlashCycle1; }
 int ChuckController::getLedsFlashCycle2() { return ledFlashCycle2; }
 bool ChuckController::getFlashFast() { return flashFast; }
 
-// return whether a memory
-// move is required
-bool ChuckController::getAndFlipMemoryMoveFlag() {
-
-  if (memoryMoveFlag) {
-    memoryMoveFlag = false;
-    return true;
-  }
-  return false;
-}
-
-int ChuckController::getMemoryPosition() {
-
-} // returns the currently active memory  slot. -1 means no slot selected.

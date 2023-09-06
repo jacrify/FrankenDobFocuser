@@ -36,8 +36,5 @@ void NunChuk::nunChukLoop() {
   }
 }
 int NunChuk::isLimitFinding() { return controller.isLimitFindingModeOn(); }
-// int NunChuk::memoryMoveRequested() { return controller.getAndFlipMemoryMoveFlag() ; }
-// int NunChuk::isMemorySetRequested() {
-//   return controller.;
-// }
+
 int NunChuk::resetLimitRequested() { return controller.getAndFlipLimitFlag(); }

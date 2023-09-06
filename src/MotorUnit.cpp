@@ -20,9 +20,10 @@ void MotorUnit::setupMotor() {
   engine.init(1);
   stepper = engine.stepperConnectToPin(stepPinStepper);
   // stepper = engine.stepperConnectToPin(stepPinStepper, DRIVER_RMT);
-  stepper = engine.stepperConnectToPin(stepPinStepper, DRIVER_MCPWM_PCNT);
+  // stepper = engine.stepperConnectToPin(stepPinStepper, DRIVER_MCPWM_PCNT);
   if (stepper) {
-    stepper->setDirectionPin(dirPinStepper);
+    log("Stepper ok");
+        stepper->setDirectionPin(dirPinStepper);
 
     // stepper->setEnablePin(enablePinStepper);
     stepper->setAutoEnable(true);

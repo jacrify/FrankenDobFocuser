@@ -13,6 +13,7 @@ NunChuk nunChuk;
 
 void setup() {
   Serial.begin(115200);
+  delay(300);
   Serial.println("Booting");
   
 
@@ -24,6 +25,8 @@ void setup() {
 }
 
 void loop() {
+  
+
   nunChuk.nunChukLoop();
   if (nunChuk.resetLimitRequested()) {
     motorUnit.resetLimit(); // set position to zero.
@@ -31,7 +34,7 @@ void loop() {
 
   
   int speed = nunChuk.getSpeed();
-  // log("Speed is %d", speed);
+  log("Speed is %d", speed);
   if (speed == 0)
     motorUnit.stop();
   else {

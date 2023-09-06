@@ -89,13 +89,13 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     speed = 0;
     return;
   }
-  
+
   // User let go of buttons, after holding them down
   // Set flag for limit reset
-  if (currentState.isBothReleasedAfterHeld()) {  
+  if (currentState.isBothReleasedAfterHeld()) {
     limitFlag = 1;
-    setMode(mode); // to set leds
-    ledFlashCycle2 = ledFlashCycle1; // don't flash 
+    setMode(mode);                   // to set leds
+    ledFlashCycle2 = ledFlashCycle1; // don't flash
     isLimitFindingMode = 0;
     speed = 0; //?
     return;
@@ -168,10 +168,10 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     }
     return;
   }
-  
-  //Neither button held, basic interpolation mode
+
+  // Neither button held, basic interpolation mode
   if (currentState.isBothNotPushed()) {
-    
+
     if (currentState.isUp()) {
       speed = interpolate(DEADZONE, MAX_AXIS, minSpeeds[mode], maxSpeeds[mode],
                           state.y);
@@ -194,9 +194,7 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     // dir=0;
     return;
   }
-  speed=0;
-
-  
+  speed = 0;
 }
 
 int ChuckController::getSpeed() { return speed; }

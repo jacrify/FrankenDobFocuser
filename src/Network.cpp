@@ -27,7 +27,7 @@ void setupWifi(Preferences &prefs) {
 
   } else {
     log("Connecting to access point");
-    wifiManager.setConnectTimeout(10);
-    wifiManager.autoConnect("dontlookup","dontlookup");
+    WiFi.begin("dontlookup", "dontlookup");
+    
   }
 }

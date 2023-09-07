@@ -1,15 +1,12 @@
 #include "Logging.h"
 #include "MotorUnit.h"
-#include "NunChuk.h"
-#include <Arduino.h>
 #include "Network.h"
+#include "NunChuk.h"
 #include "alpacaWebServer.h"
+#include <Arduino.h>
 #include <Preferences.h>
 
-
-
 #include <LittleFS.h>
-
 
 int maxSpeed = 100000;
 int deadZone = 10;
@@ -22,7 +19,7 @@ MotorUnit motorUnit(prefs);
 
 void setup() {
   Serial.begin(115200);
-  
+
   Serial.println("Booting");
   prefs.begin("AutoFocuser", false);
 
@@ -33,20 +30,18 @@ void setup() {
   motorUnit.setupMotor();
   nunChuk.setUpNunChuk();
   setupWebServer(motorUnit);
-
 }
 
 void loop() {
-  
+  loopNetwork(prefs);
 
   nunChuk.nunChukLoop();
   if (nunChuk.resetLimitRequested()) {
     motorUnit.resetLimit(); // set position to zero.
   }
 
-  
   int speed = nunChuk.getSpeed();
-  
+
   if (speed == 0)
     motorUnit.stop();
   else {

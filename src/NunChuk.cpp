@@ -26,7 +26,7 @@ void NunChuk::nunChukLoop() {
   const unsigned char *data = wii_i2c_read_state();
   wii_i2c_request_state();
   if (!data) {
-    Serial.printf("no data available :(");
+    // Serial.printf("no data available :(");
   } else {
     wii_i2c_nunchuk_state state;
     wii_i2c_decode_nunchuk(data, &state);

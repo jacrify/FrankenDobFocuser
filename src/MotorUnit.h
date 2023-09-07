@@ -9,6 +9,7 @@
 class MotorUnit {
 
 public:
+  MotorUnit(Preferences &prefs);
   void setupMotor();
   void motorLoop();
   void move(int speed);
@@ -24,7 +25,9 @@ public:
   int isLimitFindingModeOn();
   
 private:
+  Preferences preferences;
   bool alpacaMoveInProgress;
   bool checkAlpacaMoveInProgress();
+  
 };
 #endif

@@ -5,7 +5,7 @@
 FastAccelStepperEngine engine = FastAccelStepperEngine();
 FastAccelStepper *stepper = NULL;
 
-Preferences preferences;
+
 
 #define dirPinStepper 16  // BLUE
 #define stepPinStepper 17 // ORANGE
@@ -14,10 +14,11 @@ Preferences preferences;
 // #define enablePinStepper 16
 #define backwardSwitchPin 22
 
-void MotorUnit::setupMotor() {
+MotorUnit::MotorUnit(Preferences &p) : preferences(p) {
   alpacaMoveInProgress = false;
   alpacaTargetPosition = -1;
-
+}
+void MotorUnit::setupMotor() {
   engine.init(1);
   stepper = engine.stepperConnectToPin(stepPinStepper);
   // stepper = engine.stepperConnectToPin(stepPinStepper, DRIVER_RMT);
@@ -33,7 +34,7 @@ void MotorUnit::setupMotor() {
     stepper->setAcceleration(1000000); // 100 steps/s²
 
     stepper->setSpeedInHz(60000);
-    preferences.begin("AutoFocuser", false);
+    
     uint32_t savedPosition = preferences.getUInt(PREF_SAVED_POS_KEY, 0);
     log("Loaded saved position %d", savedPosition);
     stepper->setCurrentPosition(savedPosition);
@@ -53,7 +54,7 @@ bool MotorUnit::checkAlpacaMoveInProgress() {
     uint32_t pos = stepper->getCurrentPosition();
     if (pos == alpacaTargetPosition) {
       alpacaMoveInProgress = false;
-      stepper->stopMove();
+      // stepper->stopMove();
       preferences.putUInt(PREF_SAVED_POS_KEY, pos);
       log("Stopped, saving position %d", pos);
       return false;

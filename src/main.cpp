@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include "Network.h"
 #include "alpacaWebServer.h"
+#include <Preferences.h>
 
 
 
@@ -13,16 +14,19 @@
 int maxSpeed = 100000;
 int deadZone = 10;
 int wimax = 101;
-MotorUnit motorUnit;
+
 NunChuk nunChuk;
 
+Preferences prefs;
+MotorUnit motorUnit(prefs);
 
 void setup() {
   Serial.begin(115200);
   
   Serial.println("Booting");
+  prefs.begin("AutoFocuser", false);
 
-  setupWifi();
+  setupWifi(prefs);
   delay(500);
   LittleFS.begin();
 

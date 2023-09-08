@@ -27,7 +27,7 @@ void setupWifi(Preferences &prefs) {
 
   } else {
     log("Connecting to access point");
-    WiFi.begin("dontlookup", "dontlookup");
+    WiFi.begin("dontlookup", "dontlookdown");
     
   }
 }

@@ -4,7 +4,7 @@
 
 #include <ArduinoJson.h> // Include the library
 #include <ESPAsyncWebServer.h>
-#include <LittleFS.h>
+
 #include <WebSocketsClient.h>
 
 #include <time.h>
@@ -327,7 +327,7 @@ void setupWebServer(MotorUnit &motor) {
 
   // ===============================
 
-  alpacaWebServer.serveStatic("/", LittleFS, "/fs/");
+  // alpacaWebServer.serveStatic("/", LittleFS, "/fs/");
 
   alpacaWebServer.onNotFound(
       [](AsyncWebServerRequest *request) { handleNotFound(request); });

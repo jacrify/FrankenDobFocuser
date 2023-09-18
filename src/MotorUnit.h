@@ -25,7 +25,7 @@ public:
   int isLimitFindingModeOn();
   
 private:
-  Preferences preferences;
+  Preferences &preferences;
   bool alpacaMoveInProgress;
   bool checkAlpacaMoveInProgress();
   

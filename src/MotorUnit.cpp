@@ -37,7 +37,7 @@ void MotorUnit::setupMotor() {
     
     uint32_t savedPosition = preferences.getUInt(PREF_SAVED_POS_KEY, 0);
     log("Loaded saved position %d", savedPosition);
-    stepper->setCurrentPosition(savedPosition);
+    stepper->setCurrentPosition(savedPosition);\
 
   } else {
     log("AHHHHHHHHH! Can't init stepper");

@@ -26,8 +26,8 @@ void setupWifi(Preferences &prefs) {
     wifiManager.autoConnect();
 
   } else {
-    log("Connecting to access point");
-    WiFi.begin("dontlookup", "dontlookdown");
+    log("Creating access point");
+    WiFi.softAP("dontlookup", "dontlookdown");
     
   }
 }

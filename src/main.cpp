@@ -19,6 +19,7 @@ MotorUnit motorUnit(prefs);
 
 void setup() {
   Serial.begin(115200);
+  delay(500);
 
   Serial.println("Booting");
   prefs.begin("AutoFocuser", false);

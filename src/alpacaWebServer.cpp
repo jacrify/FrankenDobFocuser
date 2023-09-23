@@ -82,7 +82,7 @@ void returnConfiguredDevices(AsyncWebServerRequest *request) {
           "DeviceName": "Focuser",
           "DeviceType": "Focuser",
          "DeviceNumber": 1,
-          "UniqueID": "booboo"
+          "UniqueID": "FrankenDobFocuser"
           }],
         "ClientTransactionID": 0,
          "ServerTransactionID": 0

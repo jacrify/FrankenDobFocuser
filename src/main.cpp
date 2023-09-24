@@ -1,12 +1,12 @@
+#include "AlpacaDiscovery.h"
 #include "Logging.h"
 #include "MotorUnit.h"
 #include "Network.h"
 #include "NunChuk.h"
 #include "alpacaWebServer.h"
 #include <Arduino.h>
-#include <Preferences.h>
-#include "AlpacaDiscovery.h"
 #include <LittleFS.h>
+#include <Preferences.h>
 
 int maxSpeed = 100000;
 int deadZone = 10;
@@ -24,12 +24,20 @@ void setup() {
   Serial.println("Booting");
   prefs.begin("AutoFocuser", false);
 
-  setupWifi(prefs);
+  nunChuk.setUpNunChuk();
+  nunChuk.nunChukLoop();
+  //cheat code: when booted with z button down, connect to home wifi 
+  if (nunChuk.isZPushed())
+    setupWifiHome(prefs);
+  else
+    setupWifi(); //otherwise start access point
+
+
   delay(500);
   LittleFS.begin();
 
   motorUnit.setupMotor();
-  nunChuk.setUpNunChuk();
+
   setupWebServer(motorUnit);
   setDiscoveryOnOff(true);
 }
@@ -38,8 +46,8 @@ void loop() {
   loopNetwork(prefs);
 
   nunChuk.nunChukLoop();
-  //horible hack: Sky Safari sometimes gets confused by multiple alpaca instances
-  //When z is held down, hold off replying to discovery.
+  // horible hack: Sky Safari sometimes gets confused by multiple alpaca
+  // instances When z is held down, hold off replying to discovery.
   setDiscoveryOnOff(nunChuk.isZPushed());
 
   if (nunChuk.resetLimitRequested()) {

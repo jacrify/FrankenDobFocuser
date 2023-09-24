@@ -3,6 +3,7 @@
 
 #include <Preferences.h>
 
-void setupWifi(Preferences &prefs);
+void setupWifi();
+void setupWifiHome(Preferences &prefs);
 void loopNetwork(Preferences &prefs);
 #endif

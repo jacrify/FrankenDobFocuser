@@ -1,21 +1,17 @@
 #include "alpacaWebServer.h"
-#include "AsyncUDP.h"
 #include "Logging.h"
-
 #include <ArduinoJson.h> // Include the library
 #include <ESPAsyncWebServer.h>
-
 #include <WebSocketsClient.h>
-
 #include <time.h>
+#include "AlpacaDiscovery.h"
 
 unsigned const int localPort = 32227; // The Alpaca Discovery test port
-unsigned const int alpacaPort =
-    80; // The  port that the Alpaca API would be available on
+#define WEBSERVER_PORT 80
 
-AsyncUDP alpacaUdp;
 
-AsyncWebServer alpacaWebServer(80);
+
+AsyncWebServer alpacaWebServer(WEBSERVER_PORT);
 
 void handleNotFound(AsyncWebServerRequest *request) {
   log("Not found URL is %s", request->url().c_str());
@@ -200,21 +196,7 @@ void returnNoError(AsyncWebServerRequest *request) {
 
 void setupWebServer(MotorUnit &motor) {
 
-  // set up alpaca discovery udp
-  if (alpacaUdp.listen(32227)) {
-    log("Listening for alpaca discovery requests...");
-    alpacaUdp.onPacket([](AsyncUDPPacket packet) {
-      log("Received alpaca UDP Discovery packet ");
-      if ((packet.length() >= 16) &&
-          (strncmp("alpacadiscovery1", (char *)packet.data(), 16) == 0)) {
-        log("Responding to alpaca UDP Discovery packet with my port number "
-            "%d",
-            alpacaPort);
 
-        packet.printf("{\"AlpacaPort\": %d}", alpacaPort);
-      }
-    });
-  }
 
   // GETS. Mostly default flags.
   alpacaWebServer.on(
@@ -333,6 +315,8 @@ void setupWebServer(MotorUnit &motor) {
       [](AsyncWebServerRequest *request) { handleNotFound(request); });
 
   alpacaWebServer.begin();
+
+  setupAlpacaDiscovery(WEBSERVER_PORT);
   log("Server started");
   return;
 }

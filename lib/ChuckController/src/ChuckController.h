@@ -33,6 +33,7 @@ public:
   void setMode(int mode);
   void setModeParameters(int mode, int minSpeedInHz, int maxSpeedInHz);
   bool getAndFlipLimitFlag();
+  bool isZPushed();
   bool isLimitFindingModeOn(); // when this mode is on we ignore limits when
                                // moving motor
   int getLedsFlashCycle1(); // bitwise leds that should be lit on cycle1. 1=1,
@@ -43,5 +44,6 @@ public:
 
 private:
   CurrentChukState currentState;
+  bool zPushed;
 };
 #endif

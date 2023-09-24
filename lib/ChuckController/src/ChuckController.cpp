@@ -91,12 +91,9 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     return;
   }
 
-
-
- 
-
   // check for mode change mode
   if (currentState.isZPushed()) {
+    zPushed = true;
     // if (state.z == 1 and state.c == 0) {
     int newMode = getNewMode(currentState);
     if (newMode != -1) {
@@ -107,6 +104,8 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
       flashFast = 0;
     }
     return;
+  } else {
+    zPushed = false;
   }
 
   // Neither button held, basic interpolation mode
@@ -156,6 +155,8 @@ bool ChuckController::getAndFlipLimitFlag() {
     return 0;
 }
 
+bool ChuckController::isZPushed() { return zPushed; }
+
 void ChuckController::setModeParameters(int mode, int minSpeedInHz,
                                         int maxSpeedInHz) {
   if (mode > MODE_COUNT) {
@@ -168,4 +169,3 @@ void ChuckController::setModeParameters(int mode, int minSpeedInHz,
 int ChuckController::getLedsFlashCycle1() { return ledFlashCycle1; }
 int ChuckController::getLedsFlashCycle2() { return ledFlashCycle2; }
 bool ChuckController::getFlashFast() { return flashFast; }
-

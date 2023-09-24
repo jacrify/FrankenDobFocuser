@@ -38,3 +38,7 @@ void NunChuk::nunChukLoop() {
 int NunChuk::isLimitFinding() { return controller.isLimitFindingModeOn(); }
 
 int NunChuk::resetLimitRequested() { return controller.getAndFlipLimitFlag(); }
+
+bool NunChuk::isZPushed() {
+  return controller.isZPushed();
+}

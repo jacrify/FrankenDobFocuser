@@ -5,7 +5,7 @@
 #include "alpacaWebServer.h"
 #include <Arduino.h>
 #include <Preferences.h>
-
+#include "AlpacaDiscovery.h"
 #include <LittleFS.h>
 
 int maxSpeed = 100000;
@@ -31,12 +31,17 @@ void setup() {
   motorUnit.setupMotor();
   nunChuk.setUpNunChuk();
   setupWebServer(motorUnit);
+  setDiscoveryOnOff(true);
 }
 
 void loop() {
   loopNetwork(prefs);
 
   nunChuk.nunChukLoop();
+  //horible hack: Sky Safari sometimes gets confused by multiple alpaca instances
+  //When z is held down, hold off replying to discovery.
+  setDiscoveryOnOff(nunChuk.isZPushed());
+
   if (nunChuk.resetLimitRequested()) {
     motorUnit.resetLimit(); // set position to zero.
   }

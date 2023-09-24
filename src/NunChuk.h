@@ -15,5 +15,6 @@ public:
   int getSpeed();
   int resetLimitRequested();
   int isLimitFinding();
+  bool isZPushed();
 };
 #endif

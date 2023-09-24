@@ -5,5 +5,4 @@
 
 void setupWifi();
 void setupWifiHome(Preferences &prefs);
-void loopNetwork(Preferences &prefs);
 #endif

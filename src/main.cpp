@@ -26,12 +26,11 @@ void setup() {
 
   nunChuk.setUpNunChuk();
   nunChuk.nunChukLoop();
-  //cheat code: when booted with z button down, connect to home wifi 
+  // cheat code: when booted with z button down, connect to home wifi
   if (nunChuk.isZPushed())
     setupWifiHome(prefs);
   else
-    setupWifi(); //otherwise start access point
-
+    setupWifi(); // otherwise start access point
 
   delay(500);
   LittleFS.begin();
@@ -43,12 +42,10 @@ void setup() {
 }
 
 void loop() {
-  loopNetwork(prefs);
-
   nunChuk.nunChukLoop();
   // horible hack: Sky Safari sometimes gets confused by multiple alpaca
   // instances When z is held down, hold off replying to discovery.
-  setDiscoveryOnOff(nunChuk.isZPushed());
+  setDiscoveryOnOff(!nunChuk.isZPushed());
 
   if (nunChuk.resetLimitRequested()) {
     motorUnit.resetLimit(); // set position to zero.

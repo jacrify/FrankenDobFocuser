@@ -5,8 +5,6 @@
 FastAccelStepperEngine engine = FastAccelStepperEngine();
 FastAccelStepper *stepper = NULL;
 
-
-
 #define dirPinStepper 16  // BLUE
 #define stepPinStepper 17 // ORANGE
 
@@ -34,10 +32,10 @@ void MotorUnit::setupMotor() {
     stepper->setAcceleration(1000000); // 100 steps/s²
 
     stepper->setSpeedInHz(60000);
-    
-    uint32_t savedPosition = preferences.getUInt(PREF_SAVED_POS_KEY, 0);
-    log("Loaded saved position %d", savedPosition);
-    stepper->setCurrentPosition(savedPosition);\
+
+    lastSavedPos = preferences.getUInt(PREF_SAVED_POS_KEY, 0);
+    log("Loaded saved position %d", lastSavedPos);
+    stepper->setCurrentPosition(lastSavedPos);
 
   } else {
     log("AHHHHHHHHH! Can't init stepper");
@@ -55,14 +53,21 @@ bool MotorUnit::checkAlpacaMoveInProgress() {
     if (pos == alpacaTargetPosition) {
       alpacaMoveInProgress = false;
       // stepper->stopMove();
-      preferences.putUInt(PREF_SAVED_POS_KEY, pos);
-      log("Stopped, saving position %d", pos);
+      savePosition(pos);
+      //  preferences.putUInt(PREF_SAVED_POS_KEY, pos);
+
       return false;
     } else {
       return true;
     }
   }
   return false;
+}
+
+void MotorUnit::savePosition(uint32_t pos) {
+  log("Stopped, saving position %d", pos);
+  lastSavedPos = pos;
+  preferences.putUInt(PREF_SAVED_POS_KEY, pos);
 }
 
 void MotorUnit::move(int speed) {
@@ -100,18 +105,24 @@ void MotorUnit::moveTo(int32_t pos, int speedInHz) {
 }
 void MotorUnit::resetLimit() {
   stepper->setCurrentPosition(0);
-  preferences.putUInt(PREF_SAVED_POS_KEY, 0);
+  savePosition(0);
+  // preferences.putUInt(PREF_SAVED_POS_KEY, 0);
   log("At limit, saving zero position");
 }
 
 void MotorUnit::stop() {
   if (checkAlpacaMoveInProgress())
     return;
+  // TODO little bug here. Stepper could already be stopped, so position
+  // never gets saved.
 
   if (stepper->isRunning()) {
     stepper->stopMove();
-    uint32_t pos = stepper->getCurrentPosition();
-    preferences.putUInt(PREF_SAVED_POS_KEY, pos);
+  }
+  uint32_t pos = stepper->getCurrentPosition();
+  if (pos != lastSavedPos) {
+    savePosition(pos);
+    // preferences.putUInt(PREF_SAVED_POS_KEY, pos);
     log("Stopped, saving position %d", pos);
   }
 }

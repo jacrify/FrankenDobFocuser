@@ -28,6 +28,7 @@ private:
   Preferences &preferences;
   bool alpacaMoveInProgress;
   bool checkAlpacaMoveInProgress();
-  
+  uint32_t lastSavedPos;
+  void savePosition(uint32_t pos);
 };
 #endif

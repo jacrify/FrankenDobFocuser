@@ -18,8 +18,8 @@ void logIP() {
 }
 
 void setupWifiHome(Preferences &prefs) {
-  prefs.putString(HOMEWIFISSID,"Radar");
-  prefs.putString(HOMEWIFIPASS, "dwn@t75dwn@t75");
+  // prefs.putString(HOMEWIFISSID,"");
+  // prefs.putString(HOMEWIFIPASS, "");
   if (prefs.isKey(HOMEWIFISSID) && prefs.isKey(HOMEWIFIPASS)) {
     
     log("Connecting to home wifi");

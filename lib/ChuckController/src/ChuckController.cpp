@@ -58,6 +58,8 @@ limit (0 position) All leds flash fast
 void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
   currentState.processState(state);
 
+  eqStop = false;
+  eqSpeed = 0;
   // Both buttons held for 3 seconds. We're in find limit mode. Let them
   // move up and down. When they stop, that's the limit.
   if (currentState.isBothHeld()) {
@@ -107,6 +109,33 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
   } else {
     zPushed = false;
   }
+  // check for movements to send to eq
+  if (currentState.isCPushed()) {
+
+    if (currentState.isRight()) { // east
+      eqSpeed = interpolate(DEADZONE, MAX_AXIS, 20, 100, state.x);
+      lastEqSpeed = eqSpeed;
+      return;
+    }
+    if (currentState.isLeft()) { // west
+      eqSpeed = -interpolate(DEADZONE, MAX_AXIS, 20, 100, -state.x);
+      lastEqSpeed = eqSpeed;
+      return;
+    }
+
+    // only stop if last time was a move.
+    if (lastEqSpeed != 0) {
+      eqStop = true;
+      lastEqSpeed = 0;
+      return;
+    }
+  }
+
+  if (currentState.isCReleased()) {
+    eqStop = true;
+    lastEqSpeed = 0;
+    return;
+  }
 
   // Neither button held, basic interpolation mode
   if (currentState.isBothNotPushed()) {
@@ -138,6 +167,8 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
 
 int ChuckController::getSpeed() { return speed; }
 
+int ChuckController::getEQSpeed() { return eqSpeed; }
+
 // int ChuckController::getDir() { return dir; }
 
 int ChuckController::getMode() { return mode; }
@@ -164,6 +195,16 @@ void ChuckController::setModeParameters(int mode, int minSpeedInHz,
   }
   minSpeeds[mode] = minSpeedInHz;
   maxSpeeds[mode] = maxSpeedInHz;
+}
+
+// Only send stop to eq once
+bool ChuckController::getAndFlipEQStopFlag() {
+  if (eqStop) {
+    eqStop = false;
+
+    return true;
+  }
+  return false;
 }
 
 int ChuckController::getLedsFlashCycle1() { return ledFlashCycle1; }

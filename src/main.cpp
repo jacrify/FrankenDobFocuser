@@ -3,6 +3,7 @@
 #include "MotorUnit.h"
 #include "Network.h"
 #include "NunChuk.h"
+#include "UDPSender.h"
 #include "alpacaWebServer.h"
 #include <Arduino.h>
 #include <LittleFS.h>
@@ -26,8 +27,8 @@ void setup() {
 
   nunChuk.setUpNunChuk();
   nunChuk.nunChukLoop();
-  // cheat code: when booted with z button down, connect to home wifi
-  if (nunChuk.isZPushed())
+  // cheat code: when booted with z button down, start access point
+  if (!nunChuk.isZPushed())
     setupWifiHome(prefs);
   else
     setupWifi(); // otherwise start access point
@@ -46,6 +47,13 @@ void loop() {
   // horible hack: Sky Safari sometimes gets confused by multiple alpaca
   // instances When z is held down, hold off replying to discovery.
   setDiscoveryOnOff(!nunChuk.isZPushed());
+
+  int eqSpeed = nunChuk.getEQSpeed();
+  if (eqSpeed != 0) {
+    sendMoveAxisPercentCommand(eqSpeed);
+  } else if (nunChuk.isEQStopRequired()) {
+    sendMoveAxisPercentCommand(0);
+  }
 
   if (nunChuk.resetLimitRequested()) {
     motorUnit.resetLimit(); // set position to zero.

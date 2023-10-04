@@ -9,6 +9,11 @@ class ChuckController {
 private:
   int mode;
   int speed;
+  int eqSpeed;
+  int lastEqSpeed;
+  bool eqStop;
+
+
   // int dir; // 1 clockwise , -1 anticlockwise, 0 stopped.
   int minSpeeds[MODE_COUNT];
   int maxSpeeds[MODE_COUNT];
@@ -28,10 +33,14 @@ public:
   }
   void processChuckData(wii_i2c_nunchuk_state state);
   int getSpeed();
+  int getEQSpeed();
+ 
+  
   // int getDir();
   int getMode();
   void setMode(int mode);
   void setModeParameters(int mode, int minSpeedInHz, int maxSpeedInHz);
+  bool getAndFlipEQStopFlag();
   bool getAndFlipLimitFlag();
   bool isZPushed();
   bool isLimitFindingModeOn(); // when this mode is on we ignore limits when

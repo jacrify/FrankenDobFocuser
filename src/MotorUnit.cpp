@@ -29,7 +29,7 @@ void MotorUnit::setupMotor() {
     stepper->setAutoEnable(true);
 
     // stepper->setSpeedInHz(5000);
-    stepper->setAcceleration(1000000); // 100 steps/s²
+    stepper->setAcceleration(100000); // 100 steps/s²
 
     stepper->setSpeedInHz(60000);
 

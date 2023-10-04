@@ -18,8 +18,8 @@ void logIP() {
 }
 
 void setupWifiHome(Preferences &prefs) {
-  prefs.putString(HOMEWIFISSID,"***REMOVED***");
-  prefs.putString(HOMEWIFIPASS, "***REMOVED***");
+  // prefs.putString(HOMEWIFISSID,"");
+  // prefs.putString(HOMEWIFIPASS, "");
   if (prefs.isKey(HOMEWIFISSID) && prefs.isKey(HOMEWIFIPASS)) {
     
     log("Connecting to home wifi");

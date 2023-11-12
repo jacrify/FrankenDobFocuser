@@ -2,6 +2,6 @@
 #define UDPSENDER
 
 
-void sendMoveAxisPercentCommand(int percentToMOve);
+void sendMoveAxisPercentCommand(int axis,int percentToMOve);
 
 #endif

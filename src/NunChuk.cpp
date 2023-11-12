@@ -41,6 +41,12 @@ int NunChuk::resetLimitRequested() { return controller.getAndFlipLimitFlag(); }
 
 bool NunChuk::isZPushed() { return controller.isZPushed(); }
 
-int NunChuk::getEQSpeed() { return controller.getEQSpeed(); }
+int NunChuk::getEQRaSpeed() { return controller.getEQRaSpeed(); }
 
-bool NunChuk::isEQStopRequired() { return controller.getAndFlipEQStopFlag(); }
+bool NunChuk::isEQRaStopRequired() { return controller.getAndFlipEQRaStopFlag(); }
+
+int NunChuk::getEQDecSpeed() { return controller.getEQDecSpeed(); }
+
+bool NunChuk::isEQDecStopRequired() {
+  return controller.getAndFlipEQDecStopFlag();
+}

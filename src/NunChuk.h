@@ -16,7 +16,9 @@ public:
   int resetLimitRequested();
   int isLimitFinding();
   bool isZPushed();
-  int getEQSpeed();
-  bool isEQStopRequired();
+  int getEQRaSpeed();
+  int getEQDecSpeed();
+  bool isEQRaStopRequired();
+  bool isEQDecStopRequired();
 };
 #endif

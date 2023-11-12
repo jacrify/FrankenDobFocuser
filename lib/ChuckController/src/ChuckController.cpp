@@ -57,9 +57,10 @@ limit (0 position) All leds flash fast
 */
 void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
   currentState.processState(state);
-
-  eqStop = false;
-  eqSpeed = 0;
+  eqDecStop = false;
+  eqDecSpeed = 0;
+  eqRaStop = false;
+  eqRaSpeed = 0;
   // Both buttons held for 3 seconds. We're in find limit mode. Let them
   // move up and down. When they stop, that's the limit.
   if (currentState.isBothHeld()) {
@@ -113,27 +114,43 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
   if (currentState.isCPushed()) {
 
     if (currentState.isRight()) { // east
-      eqSpeed = interpolate(DEADZONE, MAX_AXIS, 20, 100, state.x);
-      lastEqSpeed = eqSpeed;
-      return;
+      eqRaSpeed = interpolate(DEADZONE, MAX_AXIS, 20, 100, state.x);
+      lastEqRaSpeed = eqRaSpeed;
+      // return;
     }
     if (currentState.isLeft()) { // west
-      eqSpeed = -interpolate(DEADZONE, MAX_AXIS, 20, 100, -state.x);
-      lastEqSpeed = eqSpeed;
-      return;
+      eqRaSpeed = -interpolate(DEADZONE, MAX_AXIS, 20, 100, -state.x);
+      lastEqRaSpeed = eqRaSpeed;
+      // return;
+    }
+
+    if (currentState.isUp()) { // north?
+      eqDecSpeed = interpolate(DEADZONE, MAX_AXIS, 20, 100, state.y);
+      lastEqDecSpeed = eqDecSpeed;
+      // return;
+    }
+    if (currentState.isDown()) { // south
+      eqDecSpeed = -interpolate(DEADZONE, MAX_AXIS, 20, 100, -state.y);
+      lastEqDecSpeed = eqDecSpeed;
+      // return;
     }
 
     // only stop if last time was a move.
-    if (lastEqSpeed != 0) {
-      eqStop = true;
-      lastEqSpeed = 0;
-      return;
+    if (lastEqRaSpeed != 0) {
+      eqRaStop = true;
+      lastEqRaSpeed = 0;
+    }
+    if (lastEqDecSpeed != 0) {
+      eqDecStop = true;
+      lastEqDecSpeed = 0;
     }
   }
 
   if (currentState.isCReleased()) {
-    eqStop = true;
-    lastEqSpeed = 0;
+    eqRaStop = true;
+    eqDecStop = true;
+    lastEqRaSpeed = 0;
+    lastEqDecSpeed = 0;
     return;
   }
 
@@ -167,7 +184,8 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
 
 int ChuckController::getSpeed() { return speed; }
 
-int ChuckController::getEQSpeed() { return eqSpeed; }
+int ChuckController::getEQRaSpeed() { return eqRaSpeed; }
+int ChuckController::getEQDecSpeed() { return eqDecSpeed; }
 
 // int ChuckController::getDir() { return dir; }
 
@@ -198,15 +216,23 @@ void ChuckController::setModeParameters(int mode, int minSpeedInHz,
 }
 
 // Only send stop to eq once
-bool ChuckController::getAndFlipEQStopFlag() {
-  if (eqStop) {
-    eqStop = false;
+bool ChuckController::getAndFlipEQRaStopFlag() {
+  if (eqRaStop) {
+    eqRaStop = false;
 
     return true;
   }
   return false;
 }
 
+bool ChuckController::getAndFlipEQDecStopFlag() {
+  if (eqDecStop) {
+    eqDecStop = false;
+
+    return true;
+  }
+  return false;
+}
 int ChuckController::getLedsFlashCycle1() { return ledFlashCycle1; }
 int ChuckController::getLedsFlashCycle2() { return ledFlashCycle2; }
 bool ChuckController::getFlashFast() { return flashFast; }

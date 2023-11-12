@@ -48,11 +48,18 @@ void loop() {
   // instances When z is held down, hold off replying to discovery.
   setDiscoveryOnOff(!nunChuk.isZPushed());
 
-  int eqSpeed = nunChuk.getEQSpeed();
-  if (eqSpeed != 0) {
-    sendMoveAxisPercentCommand(eqSpeed);
-  } else if (nunChuk.isEQStopRequired()) {
-    sendMoveAxisPercentCommand(0);
+  int eqRaSpeed = nunChuk.getEQRaSpeed();
+  if (eqRaSpeed != 0) {
+    sendMoveAxisPercentCommand(0,eqRaSpeed);
+  } else if (nunChuk.isEQRaStopRequired()) {
+    sendMoveAxisPercentCommand(0,0);
+  }
+
+  int eqDecSpeed = nunChuk.getEQDecSpeed();
+  if (eqDecSpeed != 0) {
+    sendMoveAxisPercentCommand(1, eqDecSpeed);
+  } else if (nunChuk.isEQDecStopRequired()) {
+    sendMoveAxisPercentCommand(1, 0);
   }
 
   if (nunChuk.resetLimitRequested()) {

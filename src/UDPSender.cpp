@@ -39,8 +39,7 @@ void sendMoveAxisPercentCommand(int axis,int percentToMove) {
       json = "EQ:" + json;
       udp.print(json.c_str());
 
-      log("EQ Command command sent %s", json);
-
+      log("EQ Command command sent %s", json.c_str());
     }
     // }
   }

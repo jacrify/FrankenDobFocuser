@@ -6,6 +6,11 @@
 #define HOMEWIFISSID "HOMEWIFISSID"
 #define HOMEWIFIPASS "HOMEWIFIPASS"
 
+IPAddress local_IP(172, 20, 10, 6);
+IPAddress gateway(172, 20, 10, 1);
+IPAddress subnet(255, 255, 255, 240);
+IPAddress primaryDNS(172, 20, 10, 1);  
+
 void logIP() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
@@ -31,6 +36,32 @@ void setupWifiHome(Preferences &prefs) {
   }
   }
 void setupWifi() {
+  // 
+  // if local hotspot exists, connect to it
+  // if local hotspot does not exist, create one
+
+  log("Scanning for networks...");
+
+  int n = WiFi.scanNetworks();
+  // prefs.putString(HOMEWIFISSID, "");
+  // prefs.putString(HOMEWIFIPASS, "");
+
+  //Check for local hotspot. If it exists, connect to it and set fixed IP address.
+
+  for (int i = 0; i < n; i++) {
+    if (WiFi.SSID(i) == "dontlookup") {
+      log("Connecting to 'dontlookup'...");
+
+      if (!WiFi.config(local_IP, gateway, subnet, primaryDNS)) {
+        log("STA Failed to configure");
+        WiFi.begin("dontlookup", "dontlookdown");
+      
+        logIP();
+      }
+      
+      return;
+    }
+  }
 
   log("Creating access point");
   WiFi.softAP("dontlookup", "dontlookdown");

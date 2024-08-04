@@ -6,7 +6,7 @@
 #include "UDPSender.h"
 #include "alpacaWebServer.h"
 #include <Arduino.h>
-#include <LittleFS.h>
+// #include <LittleFS.h>
 #include <Preferences.h>
 
 int maxSpeed = 100000;
@@ -35,7 +35,7 @@ void setup() {
     network.setUpAccessPoint(); // otherwise start access point
 
   delay(500);
-  LittleFS.begin();
+  // LittleFS.begin();
 
   motorUnit.setupMotor();
 

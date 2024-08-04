@@ -25,6 +25,11 @@ void setup() {
 
   Serial.println("Booting");
   prefs.begin("AutoFocuser", false);
+  // Fresh ESP32s need their wifi creds initialised (once off) as follows. Do
+  // not commit.
+  // network.storeESP32WifiCreds("","");
+  // network.storeHomeWifiCreds("", "");
+  // network.storePhoneWifiCreds("", "");
 
   nunChuk.setUpNunChuk();
   nunChuk.nunChukLoop();

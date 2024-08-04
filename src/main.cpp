@@ -17,6 +17,7 @@ NunChuk nunChuk;
 
 Preferences prefs;
 MotorUnit motorUnit(prefs);
+Network network(prefs, WE_ARE_FOCUSER);
 
 void setup() {
   Serial.begin(115200);
@@ -29,9 +30,9 @@ void setup() {
   nunChuk.nunChukLoop();
   // cheat code: when booted with z button down, start access point
   if (!nunChuk.isZPushed())
-    setupWifiHome(prefs);
+    network.setupWifi();
   else
-    setupWifi(); // otherwise start access point
+    network.setUpAccessPoint(); // otherwise start access point
 
   delay(500);
   LittleFS.begin();

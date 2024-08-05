@@ -116,31 +116,28 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     if (currentState.isRight()) { // east
       eqRaSpeed = interpolate(DEADZONE, MAX_AXIS, 20, 100, state.x);
       lastEqRaSpeed = eqRaSpeed;
-      // return;
     }
     if (currentState.isLeft()) { // west
       eqRaSpeed = -interpolate(DEADZONE, MAX_AXIS, 20, 100, -state.x);
       lastEqRaSpeed = eqRaSpeed;
-      // return;
     }
 
-    if (currentState.isUp()) { // north?
+    if (currentState.isUp()) { // north? 
       eqDecSpeed = interpolate(DEADZONE, MAX_AXIS, 20, 100, state.y);
       lastEqDecSpeed = eqDecSpeed;
-      // return;
+      ;
     }
     if (currentState.isDown()) { // south
       eqDecSpeed = -interpolate(DEADZONE, MAX_AXIS, 20, 100, -state.y);
       lastEqDecSpeed = eqDecSpeed;
-      // return;
     }
 
     // only stop if last time was a move.
-    if (lastEqRaSpeed != 0) {
+    if (eqRaSpeed == 0 && lastEqRaSpeed != 0) {
       eqRaStop = true;
       lastEqRaSpeed = 0;
     }
-    if (lastEqDecSpeed != 0) {
+    if (eqDecSpeed == 0 && lastEqDecSpeed != 0) {
       eqDecStop = true;
       lastEqDecSpeed = 0;
     }
@@ -151,6 +148,8 @@ void ChuckController::processChuckData(wii_i2c_nunchuk_state state) {
     eqDecStop = true;
     lastEqRaSpeed = 0;
     lastEqDecSpeed = 0;
+    eqDecSpeed = 0;
+    eqRaSpeed=0;
     return;
   }
 

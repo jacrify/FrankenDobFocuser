@@ -11,6 +11,8 @@
 #define ESPWIFISSID "ESPWIFISSID"
 #define ESPWIFIPASS "ESPWIFIPASS"
 
+#define HOTSPOT_CHANNEL 11
+
 WiFiManager wifiManager;
 
 /*
@@ -162,5 +164,6 @@ void Network::setUpAccessPoint() {
   WiFi.softAP(preferences.getString(espNetwork.ssidKey).c_str(),
               preferences.getString(espNetwork.passwordKey).c_str());
   log("Access Point set up with IP address: %d.%d.%d.%d", espNetwork.gateway[0],
-      espNetwork.gateway[1], espNetwork.gateway[2], espNetwork.gateway[3]);
+      espNetwork.gateway[1], espNetwork.gateway[2], espNetwork.gateway[3],
+      HOTSPOT_CHANNEL);
 }
